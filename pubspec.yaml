@@ -1,6 +1,8 @@
 name: AwsClient
 author: Ole Martin Gjersvik
 description: A sample command-line application
+dependencies:
+  intl: any
 
 #dependencies:
 #  unittest: any
