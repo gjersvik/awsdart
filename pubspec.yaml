@@ -1,4 +1,4 @@
-name: AwsClient
+name: amasone_dart
 author: Ole Martin Gjersvik
 description: A sample command-line application
 dependencies:
