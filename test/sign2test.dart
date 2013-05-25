@@ -18,10 +18,13 @@ void main(){
     test('The sign string must contain &AWSAccessKeyId=x were x is the passed accessKey', () {
       fail('Not Implmented');
     });
-    test('The sign string must contain Timestamp=x, were x is url ecoded UTC datetime. 0000-00-00T00:00:00', () {
+    test('The sign string must contain &Timestamp=x, were x is url ecoded UTC datetime. 0000-00-00T00:00:00', () {
       fail('Not Implmented');
     });
-    test('SignatureMethod=HmacSHA256', () {
+    test('The sign string must contain &SignatureMethod=HmacSHA256', () {
+      fail('Not Implmented');
+    });
+    test('The sign string must contain &Signature=x, were x is the correct siganture', () {
       fail('Not Implmented');
     });
   });
