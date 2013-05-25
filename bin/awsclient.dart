@@ -1,5 +1,7 @@
 import 'dart:crypto';
 import 'dart:utf';
+import 'dart:uri';
+import 'dart:io';
 import 'package:intl/intl.dart';
 
 final DateFormat AWSDATE = new DateFormat('yyyyMMdd');
@@ -27,6 +29,22 @@ class AwsKey{
   }
 }
 
+class AwsCanonicalRequest{
+  String metode = 'GET';
+  String path = '/';
+  String query = '';
+  Map<String,String> headers = {};
+  
+  String toString(){
+    StringBuffer buffer = new StringBuffer();
+    
+    buffer.writeln(metode.toUpperCase());
+    buffer.writeln(path);
+    buffer.writeln(query);
+    
+    return buffer.toString();
+  }
+}
 
 void main() {
   AwsKey key = new AwsKey();
@@ -37,4 +55,11 @@ void main() {
   
   print('f4780e2d9f65fa895f9c67b32ce1baf0b0d8a43505a000a1a9e090d414db404d');
   print(key);
+  
+  var request = new AwsCanonicalRequest();
+  request.metode = 'post';
+  request.path = '/';
+  
+  print(request);
+  print('---end of request---');
 }
