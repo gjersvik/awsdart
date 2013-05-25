@@ -1,8 +1,10 @@
-name: amasone_dart
+name: amazone_dart
 author: Ole Martin Gjersvik
 description: A sample command-line application
 dependencies:
   intl: any
+dev_dependencies:
+  unittest: any
 
 #dependencies:
 #  unittest: any
