@@ -28,4 +28,18 @@ sign2Test() => group('Sign2',(){
     expect(new Sign2().calculateSignature(data, key), 
         'i91nKc4PWAt0JJIdXwz9HxZCJDdiy6cf%2FMj6vPxyYIs%3D');
   });
+  
+  test('The exsample from doc full signature',(){
+    var req = new Request();
+    req.metode = 'GET';
+    req.uri = Uri.parse('https://elasticmapreduce.amazonaws.com?' + 
+        'Action=DescribeJobFlows&Version=2009-03-31');
+    var time = new DateTime.utc(2011,10,3,15,19,30);
+    
+    req = new Sign2().sign(req, 'AKIAIOSFODNN7EXAMPLE',
+        'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY', time);
+    
+    expect(req.uri.queryParameters['Signature'], 
+        'i91nKc4PWAt0JJIdXwz9HxZCJDdiy6cf%2FMj6vPxyYIs%3D');
+  });
 });

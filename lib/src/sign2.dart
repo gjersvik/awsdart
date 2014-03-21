@@ -1,6 +1,28 @@
 part of amazone_dart;
 
 class Sign2{
+  var iso = new DateFormat('yyyy-MM-ddTHH:mm:ss');
+  
+  Request sign(Request req, String accessKey,
+               String secretKey, [DateTime time]){
+    if(time == null){
+      time = new DateTime.now().toUtc();
+    }
+    var query = new Map.from( req.uri.queryParameters);
+    
+    query['AWSAccessKeyId'] = accessKey;
+    query['SignatureVersion'] = '2';
+    query['SignatureMethod'] = 'HmacSHA256';
+    query['Timestamp'] = iso.format(time);
+    
+    var data = canonical(req.metode,
+        new Uri.https(req.uri.authority, req.uri.path, query));
+    query['Signature'] = calculateSignature(data, secretKey);
+    
+    req.uri = new Uri.https(req.uri.authority, req.uri.path, query);
+    return req;
+  }
+  
   String canonical(String metode, Uri uri){
     var canon = new StringBuffer();
     

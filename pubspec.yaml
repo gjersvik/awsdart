@@ -3,5 +3,6 @@ author: Ole Martin Gjersvik
 description: A sample command-line application
 dependencies:
   crypto: any
+  intl: any
 dev_dependencies:
   unittest: any
