@@ -1,6 +1,6 @@
 part of amazone_dart;
 
-typedef Responce request(Request req);
+typedef Future<Responce> Requester(Request req);
 
 class Request{
   String metode;
