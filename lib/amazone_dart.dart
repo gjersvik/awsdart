@@ -6,3 +6,4 @@ import 'dart:io';
 part 'src/aws.dart';
 part 'src/io_requester.dart';
 part 'src/requester.dart';
+part 'src/sign2.dart';

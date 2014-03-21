@@ -1,5 +1,7 @@
 name: amazone_dart
 author: Ole Martin Gjersvik
 description: A sample command-line application
+dependencies:
+  crypto: any
 dev_dependencies:
   unittest: any
