@@ -21,3 +21,5 @@ A more dart natural api based on layer 1 apis.
 None yet.
 
 _This project is licensed under the BSD 2-Clause License._
+
+[ ![Codeship Status for gjersvik/AmazonDart](https://www.codeship.io/projects/0e6905e0-9305-0131-1c79-0ef75c22b34f/status?branch=master)](https://www.codeship.io/projects/16595)
