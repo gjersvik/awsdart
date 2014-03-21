@@ -12,8 +12,6 @@ part of amazone_dart;
  * 
  */
 class Aws{
-  static Aws _default;
-  
   /**
    *  Set the default instance of [Aws] that is used by this library.
    *  
@@ -41,9 +39,17 @@ class Aws{
    *  Create a new instance of [Aws].
    *  
    */
-  Aws.create(){
+  Aws.create({this.accessKey, this.secretKey}){
     if(_default == null){
       _default = this;
     }
   }
+  
+  /// Access key ID that tells AWS how you are.
+  String accessKey;
+  /// Secret access key proves how you are.
+  String secretKey;
+  
+
+  static Aws _default;
 }
