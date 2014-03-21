@@ -1,7 +1,7 @@
 part of amazone_dart;
 
 class Sign2{
-  String canonicalQueryString(String metode, Uri uri){
+  String canonical(String metode, Uri uri){
     var canon = new StringBuffer();
     
     // Start with the request method, followed by a newline character.
@@ -24,5 +24,11 @@ class Sign2{
     }).join('&'));
     
     return canon.toString();
+  }
+  
+  String calculateSignature(String canonical, String secretKey){
+    var hmac = new HMAC(new SHA256(),UTF8.encode(secretKey));
+    hmac.add(UTF8.encode(canonical));
+    return Uri.encodeComponent(CryptoUtils.bytesToBase64(hmac.close()));
   }
 }

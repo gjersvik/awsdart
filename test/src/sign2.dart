@@ -1,7 +1,7 @@
 part of amazone_dart_unit;
 
 sign2Test() => group('Sign2',(){
-  test('The exsample from doc',(){
+  test('The exsample from doc to canonical',(){
     var uri = Uri.parse('https://elasticmapreduce.amazonaws.com?' + 
         'Action=DescribeJobFlows&Version=2009-03-31' +
         '&AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&SignatureVersion=2' +
@@ -13,6 +13,19 @@ sign2Test() => group('Sign2',(){
         '&SignatureMethod=HmacSHA256&SignatureVersion=2' +
         '&Timestamp=2011-10-03T15%3A19%3A30&Version=2009-03-31';
     
-    expect(new Sign2().canonicalQueryString('GET', uri), test);
+    expect(new Sign2().canonical('GET', uri), test);
+  });
+  
+  test('The exsample from doc calculateSignature',(){
+    var data = 'GET\n' + 
+        'elasticmapreduce.amazonaws.com\n' +
+        '/\n' + 
+        'AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&Action=DescribeJobFlows' +
+        '&SignatureMethod=HmacSHA256&SignatureVersion=2' +
+        '&Timestamp=2011-10-03T15%3A19%3A30&Version=2009-03-31';
+    var key = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY';
+    
+    expect(new Sign2().calculateSignature(data, key), 
+        'i91nKc4PWAt0JJIdXwz9HxZCJDdiy6cf%2FMj6vPxyYIs%3D');
   });
 });
