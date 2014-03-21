@@ -1,15 +1,17 @@
 part of amazone_dart;
 
-typedef Future<Responce> Requester(Request req);
+abstract class Requester{
+  Future<Response> request(Request req);
+}
 
 class Request{
   String metode;
-  String path;
+  Uri uri;
   Map<String,String> headers;
   Stream<List<int>> body;
 }
 
-class Responce{
+class Response{
   int statusCode;
   String statusString;
   Map<String,String> headers;
