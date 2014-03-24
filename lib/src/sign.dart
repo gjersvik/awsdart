@@ -5,8 +5,12 @@ class Sign{
   var long4 = new DateFormat('yyyyMMddTHH:mm:ssZ');
   var short4 = new DateFormat('yyyyMMdd');
   
-  Request sign2(Request req, String accessKey,
-               String secretKey, [DateTime time]){
+  final String accessKey;
+  final List<int> secretKey;
+  
+  Sign(this.accessKey,String secretKey): secretKey = UTF8.encode(secretKey);
+  
+  Request sign2(Request req, [DateTime time]){
     if(time == null){
       time = new DateTime.now().toUtc();
     }
@@ -19,11 +23,26 @@ class Sign{
     
     var data = canonical2(req.metode,
         new Uri.https(req.uri.authority, req.uri.path, query));
-    query['Signature'] = calculateSignature2(data, secretKey);
+    query['Signature'] = toUrl(sign(secretKey, data));
     
     req.uri = new Uri.https(req.uri.authority, req.uri.path, query);
     return req;
   }
+  
+  sign(List<int> key, String toSign){
+    var hmac = new HMAC(new SHA256(),key);
+    hmac.add(UTF8.encode(toSign));
+    return hmac.close();
+  }
+  
+  String toUrl(List<int> hash) 
+      => Uri.encodeComponent(CryptoUtils.bytesToBase64(hash));
+  
+  String toHex(List<int> hash) 
+      => CryptoUtils.bytesToHex(hash);
+  
+  List<int> getKey4(List<String> scope)
+      => scope.map(UTF8.encode).fold(secretKey, sign);
   
   String canonical2(String metode, Uri uri){
     var canon = new StringBuffer();
@@ -59,7 +78,7 @@ class Sign{
     // 5. SignedHeaders
     canon.writeln(signedHeaders(headers));
     // 6. PayloadHash
-    canon.write(CryptoUtils.bytesToHex(payloadHash));
+    canon.write(toHex(payloadHash));
     
     return canon.toString();
   }
@@ -77,19 +96,13 @@ class Sign{
     canon.writeln(scope);
     
     // 4. HashedCanonicalRequest
-    canon.write(CryptoUtils.bytesToHex(canonicalHash));
+    canon.write(toHex(canonicalHash));
     
     return canon.toString();
   }
   
   String credentialScope(DateTime time, String region, String service){
     return [short4.format(time), region, service, 'aws4_request'].join('/');
-  }
-  
-  String calculateSignature2(String canonical, String secretKey){
-    var hmac = new HMAC(new SHA256(),UTF8.encode(secretKey));
-    hmac.add(UTF8.encode(canonical));
-    return Uri.encodeComponent(CryptoUtils.bytesToBase64(hmac.close()));
   }
   
   String canonicalQueryString(Map<String,String> query){
