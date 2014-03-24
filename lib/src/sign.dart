@@ -1,9 +1,9 @@
 part of amazone_dart;
 
-class Sign2{
+class Sign{
   var iso = new DateFormat('yyyy-MM-ddTHH:mm:ss');
   
-  Request sign(Request req, String accessKey,
+  Request sign2(Request req, String accessKey,
                String secretKey, [DateTime time]){
     if(time == null){
       time = new DateTime.now().toUtc();
@@ -15,15 +15,15 @@ class Sign2{
     query['SignatureMethod'] = 'HmacSHA256';
     query['Timestamp'] = iso.format(time);
     
-    var data = canonical(req.metode,
+    var data = canonical2(req.metode,
         new Uri.https(req.uri.authority, req.uri.path, query));
-    query['Signature'] = calculateSignature(data, secretKey);
+    query['Signature'] = calculateSignature2(data, secretKey);
     
     req.uri = new Uri.https(req.uri.authority, req.uri.path, query);
     return req;
   }
   
-  String canonical(String metode, Uri uri){
+  String canonical2(String metode, Uri uri){
     var canon = new StringBuffer();
     
     // Start with the request method, followed by a newline character.
@@ -48,7 +48,7 @@ class Sign2{
     return canon.toString();
   }
   
-  String calculateSignature(String canonical, String secretKey){
+  String calculateSignature2(String canonical, String secretKey){
     var hmac = new HMAC(new SHA256(),UTF8.encode(secretKey));
     hmac.add(UTF8.encode(canonical));
     return Uri.encodeComponent(CryptoUtils.bytesToBase64(hmac.close()));
