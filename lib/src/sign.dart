@@ -10,6 +10,33 @@ class Sign{
   
   Sign(this.accessKey,String secretKey): secretKey = UTF8.encode(secretKey);
   
+  Request authenticateRequest(Request req, [version = 4]){
+    //add deafult values to request;
+    if(req.time == null){
+      req.time =  new DateTime.now().toUtc();
+    }
+    if(req.region == null){
+      req.region =  req.uri.host.split('.').reversed.elementAt(2);
+    }
+    if(req.service == null){
+      req.service =  req.uri.host.split('.').reversed.elementAt(3);
+    }
+    
+    //preperare request.
+    
+    
+    //get string to sign.
+    
+    //get signing key.
+    
+    //sign request.
+    
+    //write authentication.
+    
+    //return request.
+    return req;
+  }
+  
   Request sign2(Request req, [DateTime time]){
     if(time == null){
       time = new DateTime.now().toUtc();

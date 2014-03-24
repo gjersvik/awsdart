@@ -9,6 +9,10 @@ class Request{
   Uri uri;
   Map<String,String> headers;
   Stream<List<int>> body;
+  List<int> bodyHash;
+  String region;
+  String service;
+  DateTime time;
 }
 
 class Response{
