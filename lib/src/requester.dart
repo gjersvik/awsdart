@@ -5,10 +5,10 @@ abstract class Requester{
 }
 
 class Request{
-  String metode;
+  String metode = 'GET';
   Uri uri;
-  Map<String,String> headers;
-  Stream<List<int>> body;
+  Map<String,String> headers = {};
+  List<int> body;
   List<int> bodyHash;
   String region;
   String service;

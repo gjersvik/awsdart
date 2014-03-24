@@ -11,7 +11,7 @@ class IoRequester extends Requester{
             req.headers.forEach(request.headers.add);
           }
           if(req.body != null){
-            request.addStream(req.body);
+            request.add(req.body);
           }
           return request.close();
         })

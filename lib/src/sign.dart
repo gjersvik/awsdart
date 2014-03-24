@@ -2,7 +2,7 @@ part of amazone_dart;
 
 class Sign{
   var iso = new DateFormat('yyyy-MM-ddTHH:mm:ss');
-  var long4 = new DateFormat('yyyyMMddTHH:mm:ssZ');
+  var long4 = new DateFormat("yyyyMMddTHHmmss'Z'");
   var short4 = new DateFormat('yyyyMMdd');
   
   final String accessKey;
@@ -110,7 +110,9 @@ class Sign{
   
   List<int> getKey(Request req, [version = 4]){
     if(version == 4){
-      return scope(req).map(UTF8.encode).fold(secretKey, sign);
+      var key = UTF8.encode('AWS4').toList();
+      key.addAll(secretKey);
+      return scope(req).fold(key, sign);
     }
     return secretKey;
   }
@@ -124,7 +126,7 @@ class Sign{
       canon.writeln(req.headers['host']);
     }
     // CanonicalURI
-    canon.writeln('/${req.uri.path}');
+    canon.writeln(req.uri.path);
     // CanonicalQueryString
     canon.write(canonicalQueryString(req.uri.queryParameters));
     // v2 ends here.
@@ -184,7 +186,7 @@ class Sign{
     
     var headersList = canon.keys.toList();
     headersList.sort();
-    return headersList.map((key) => '$key:${canon[key]}').join('\n');
+    return headersList.map((key) => '$key:${canon[key]}\n').join();
   }
   
   String signedHeaders(Map<String,String> headers){

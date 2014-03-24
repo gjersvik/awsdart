@@ -43,7 +43,11 @@ class Aws{
     if(_default == null){
       _default = this;
     }
+    sign = new Sign(accessKey,secretKey);
   }
+  
+  Sign sign;
+  Requester server = new IoRequester();
   
   /// Access key ID that tells AWS how you are.
   String accessKey;
@@ -52,4 +56,9 @@ class Aws{
   
 
   static Aws _default;
+  
+  Future<Response> request(req,[version = 4]){
+    req = sign.authenticateRequest(req, version);
+    return server.request(req);
+  }
 }
