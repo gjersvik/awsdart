@@ -11,48 +11,84 @@ class Sign{
   Sign(this.accessKey,String secretKey): secretKey = UTF8.encode(secretKey);
   
   Request authenticateRequest(Request req, [version = 4]){
-    //add deafult values to request;
-    if(req.time == null){
-      req.time =  new DateTime.now().toUtc();
-    }
-    if(req.region == null){
-      req.region =  req.uri.host.split('.').reversed.elementAt(2);
-    }
-    if(req.service == null){
-      req.service =  req.uri.host.split('.').reversed.elementAt(3);
-    }
-    
     //preperare request.
-    
+    req = prepare(req,version);
     
     //get string to sign.
+    var string = toSign(req, version);
     
     //get signing key.
+    var key = getKey(req, version);
     
     //sign request.
+    var hmac = sign(key,string);
     
     //write authentication.
+    if(version == 4){
+      return writeAuth4(req,hmac);
+    }else{
+      return writeAuth2(req,hmac);
+    }
+  }
+  
+  Request prepare(Request req, [version = 4]){
+    // both v2 and v4 need time infomation;
+    if(req.time == null){
+      req.time = new DateTime.now().toUtc();
+    }
+    // both v2 and v4 need correct host;
+    if(!req.headers.containsKey('host')){
+      req.headers['host'] = req.uri.host;
+    }
     
-    //return request.
+    if(version == 4){
+      // v4 need reagion and service.
+      if(req.region == null){
+        req.region =  req.headers['host'].split('.').reversed.elementAt(2);
+      }
+      if(req.service == null){
+        req.service =  req.headers['host'].split('.').reversed.elementAt(3);
+      }
+      // v4 need good date header.
+      req.headers['Date'] = long4.format(req.time);
+    }
+    
+    if(version == 2){
+      //v2 need most of autetication parametes set before signing.
+      var query = new Map.from( req.uri.queryParameters);
+      query['AWSAccessKeyId'] = accessKey;
+      query['SignatureVersion'] = '2';
+      query['SignatureMethod'] = 'HmacSHA256';
+      query['Timestamp'] = iso.format(req.time);
+      req.uri = new Uri(scheme: req.uri.scheme, userInfo: req.uri.userInfo, 
+          host: req.uri.host, port: req.uri.port,
+          path: req.uri.path, query: req.uri.query);
+    }
+    
     return req;
   }
   
-  Request sign2(Request req, [DateTime time]){
-    if(time == null){
-      time = new DateTime.now().toUtc();
-    }
-    var query = new Map.from( req.uri.queryParameters);
+  Request writeAuth2(Request req, key){
+    var query = req.uri.queryParameters;
+    query['Signature'] = toUrl(key);
+    req.uri = new Uri(scheme: req.uri.scheme, userInfo: req.uri.userInfo, 
+              host: req.uri.host, port: req.uri.port,
+              path: req.uri.path, query: req.uri.query);
+    return req;
+  }
+  
+  Request writeAuth4(Request req, key){
+    var auth = new StringBuffer();
+    auth.write('AWS4-HMAC-SHA256 Credential=');
+    auth.write(accessKey);
+    auth.write('/');
+    auth.write(credentialScope(req));
+    auth.write(', SignedHeaders=');
+    auth.write(signedHeaders(req.headers));
+    auth.write(', Signature=');
+    auth.write(toHex(key));
     
-    query['AWSAccessKeyId'] = accessKey;
-    query['SignatureVersion'] = '2';
-    query['SignatureMethod'] = 'HmacSHA256';
-    query['Timestamp'] = iso.format(time);
-    
-    var data = canonical2(req.metode,
-        new Uri.https(req.uri.authority, req.uri.path, query));
-    query['Signature'] = toUrl(sign(secretKey, data));
-    
-    req.uri = new Uri.https(req.uri.authority, req.uri.path, query);
+    req.headers['Authorization'] = auth.toString();
     return req;
   }
   
@@ -68,69 +104,70 @@ class Sign{
   String toHex(List<int> hash) 
       => CryptoUtils.bytesToHex(hash);
   
-  List<int> getKey4(List<String> scope)
-      => scope.map(UTF8.encode).fold(secretKey, sign);
+  List<String> scope(Request req){
+    return [short4.format(req.time), req.region, req.service, 'aws4_request'];
+  }
   
-  String canonical2(String metode, Uri uri){
+  List<int> getKey(Request req, [version = 4]){
+    if(version == 4){
+      return scope(req).map(UTF8.encode).fold(secretKey, sign);
+    }
+    return secretKey;
+  }
+  
+  String canonical(Request req, [version = 4]){
     var canon = new StringBuffer();
+    // both v2 and v4 start wit metode
+    canon.writeln(req.metode);
+    // v2 need host before path
+    if(version == 2){
+      canon.writeln(req.headers['host']);
+    }
+    // CanonicalURI
+    canon.writeln('/${req.uri.path}');
+    // CanonicalQueryString
+    canon.write(canonicalQueryString(req.uri.queryParameters));
+    // v2 ends here.
+    if(version == 2){
+      return canon.toString();
+    }
+    canon.write('\n');
     
-    // Start with the request method, followed by a newline character.
-    canon.writeln(metode);
-    
-    // HTTP host header in lowercase, followed by a newline character.
-    canon.writeln(uri.authority);
-    
-    // Add the URL-encoded version of each path segment of the URI
-    canon.writeln('/${uri.path}');
-    
-    //Add the query string components as UTF-8 characters which are URL encoded
-    //and sorted using lexicographic byte ordering.
-    canon.write(canonicalQueryString(uri.queryParameters));
+    // CanonicalHeaders
+    canon.writeln(canonicalHeaders(req.headers));
+    // SignedHeaders
+    canon.writeln(signedHeaders(req.headers));
+    // PayloadHash
+    canon.write(toHex(req.bodyHash));
     
     return canon.toString();
   }
   
-  String canonical4(String metode, Uri uri, 
-                    Map<String,String> headers, List<int> payloadHash){
-    var canon = new StringBuffer();
-    
-    // 1. HTTPRequestMethod
-    canon.writeln(metode);
-    // 2. CanonicalURI
-    canon.writeln('/${uri.path}');
-    // 3. CanonicalQueryString
-    canon.writeln(canonicalQueryString(uri.queryParameters)); 
-    // 4. CanonicalHeaders
-    canon.writeln(canonicalHeaders(headers));
-    // 5. SignedHeaders
-    canon.writeln(signedHeaders(headers));
-    // 6. PayloadHash
-    canon.write(toHex(payloadHash));
-    
-    return canon.toString();
-  }
-  
-  String toSign(DateTime time, String scope, List<int> canonicalHash){
+  String toSign(Request req, [version = 4]){
+    // if verson 2 return canonical.
+    if(version == 2){
+      return canonical(req, version);
+    }
     var canon = new StringBuffer();
     
     // 1. Algorithm
     canon.writeln('AWS4-HMAC-SHA256');
     
     // 2. RequestDate
-    canon.writeln(long4.format(time));
+    canon.writeln(long4.format(req.time));
     
     // 3. CredentialScope
-    canon.writeln(scope);
+    canon.writeln(credentialScope(req));
     
     // 4. HashedCanonicalRequest
-    canon.write(toHex(canonicalHash));
+    var hash =  new SHA256();
+    hash.add(UTF8.encode(canonical(req, version)));
+    canon.write(toHex(hash.close()));
     
     return canon.toString();
   }
   
-  String credentialScope(DateTime time, String region, String service){
-    return [short4.format(time), region, service, 'aws4_request'].join('/');
-  }
+  String credentialScope(Request req) => scope(req).join('/');
   
   String canonicalQueryString(Map<String,String> query){
     var keys = query.keys.toList();
