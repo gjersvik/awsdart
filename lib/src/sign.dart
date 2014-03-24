@@ -2,6 +2,8 @@ part of amazone_dart;
 
 class Sign{
   var iso = new DateFormat('yyyy-MM-ddTHH:mm:ss');
+  var long4 = new DateFormat('yyyyMMddTHH:mm:ssZ');
+  var short4 = new DateFormat('yyyyMMdd');
   
   Request sign2(Request req, String accessKey,
                String secretKey, [DateTime time]){
@@ -37,12 +39,7 @@ class Sign{
     
     //Add the query string components as UTF-8 characters which are URL encoded
     //and sorted using lexicographic byte ordering.
-    var query = uri.queryParameters;
-    var keys = query.keys.toList();
-    keys.sort(); 
-    canon.write(keys.map((String key){
-      return Uri.encodeComponent(key) +'='+ Uri.encodeComponent(query[key]);
-    }).join('&'));
+    canon.write(canonicalQueryString(uri.queryParameters));
     
     return canon.toString();
   }
@@ -65,6 +62,28 @@ class Sign{
     canon.write(CryptoUtils.bytesToHex(payloadHash));
     
     return canon.toString();
+  }
+  
+  String toSign(DateTime time, String scope, List<int> canonicalHash){
+    var canon = new StringBuffer();
+    
+    // 1. Algorithm
+    canon.writeln('AWS4-HMAC-SHA256');
+    
+    // 2. RequestDate
+    canon.writeln(long4.format(time));
+    
+    // 3. CredentialScope
+    canon.writeln(scope);
+    
+    // 4. HashedCanonicalRequest
+    canon.write(CryptoUtils.bytesToHex(canonicalHash));
+    
+    return canon.toString();
+  }
+  
+  String credentialScope(DateTime time, String region, String service){
+    return [short4.format(time), region, service, 'aws4_request'].join('/');
   }
   
   String calculateSignature2(String canonical, String secretKey){
