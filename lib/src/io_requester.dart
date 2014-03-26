@@ -24,8 +24,8 @@ class IoRequester extends Requester{
             headers[name] = list.join(',');
           });
           res.headers = headers;
-          res.body = new StreamView(response);
-          return res;
+          return response.fold([], (List body,next)=> body..addAll(next))
+            .then((data) => res..body = data);
         });
   }
 }

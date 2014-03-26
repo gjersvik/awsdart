@@ -19,5 +19,5 @@ class Response{
   int statusCode;
   String statusString;
   Map<String,String> headers;
-  Stream<List<int>> body;
+  List<int> body;
 }
