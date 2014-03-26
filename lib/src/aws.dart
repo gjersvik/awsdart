@@ -1,4 +1,4 @@
-part of amazone_dart;
+part of awsdart;
 
 /**
  *  The core class of the Amazone Dart library.

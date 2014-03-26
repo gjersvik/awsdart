@@ -1,4 +1,4 @@
-part of amazone_dart_unit;
+part of awsdart_unit;
 
 awsTest() => group('Aws',(){
   setUp((){

@@ -1,4 +1,4 @@
-part of amazone_dart;
+part of awsdart;
 
 class Sign{
   var iso = new DateFormat('yyyy-MM-ddTHH:mm:ss');

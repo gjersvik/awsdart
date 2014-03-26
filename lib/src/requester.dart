@@ -1,4 +1,4 @@
-part of amazone_dart;
+part of awsdart;
 
 abstract class Requester{
   Future<Response> request(Request req);

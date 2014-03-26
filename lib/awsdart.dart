@@ -1,4 +1,4 @@
-library amazone_dart;
+library awsdart;
 
 import 'dart:async';
 import 'dart:io';
