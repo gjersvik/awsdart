@@ -1,10 +1,10 @@
 name: awsdart
 version: 0.0.1
-author: Ole Martin Gjersvik
+author: Ole Martin Gjersvik <olem@olem.org>
 description: Library to work wit Amazone  Web Service.
 homepage: https://github.com/gjersvik/awsdart
 environment:
-  sdk: '>=1.2.0 <2.0.0'
+  sdk: '>=1.0.0 <2.0.0'
 dependencies:
   crypto: any
   intl: any
