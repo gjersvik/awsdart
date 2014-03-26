@@ -78,9 +78,17 @@ class Aws{
     if(body != null){
       req.body = body;
     }
-    //TODO auto find region and service.
-    req.region = region;
-    req.service = service;
+    if(region != null){
+      req.region = region;
+    }else{
+      req.region = hostnameToRegion(req.uri.host);
+    }
+    if(service != null){
+      req.service = service;
+    }else{
+      req.service = hostnameToService(req.uri.host);
+    }
+    
     if(time != null){
       req.time =  time.toUtc();
     }

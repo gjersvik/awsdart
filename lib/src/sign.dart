@@ -32,16 +32,6 @@ class Sign{
   }
   
   Request prepare(Request req, [version = 4]){
-    if(version == 4){
-      // v4 need reagion and service.
-      if(req.region == null){
-        req.region =  req.headers['host'].split('.').reversed.elementAt(2);
-      }
-      if(req.service == null){
-        req.service =  req.headers['host'].split('.').reversed.elementAt(3);
-      }
-    }
-    
     if(version == 2){
       //v2 need most of autetication parametes set before signing.
       var query = new Map.from( req.uri.queryParameters);
