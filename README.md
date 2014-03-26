@@ -2,13 +2,12 @@ awsdart
 ----------
 Awsdart is a library to make it easier to use Amazone Web Service API in dart.
 
-
+WARNING this package is very new and unstable. Do not use for anyting important. But please test and give feedback. WARNING
 
 The main goals for the project.
-
 * Layered implementation.
-* Well tested.
 * Documented.
+* Well tested.
 
 ###Layers
 **Layer 0:**
@@ -19,7 +18,8 @@ Is a one to one mapping of the aws api in dart.
 A more dart natural api based on layer 1 apis.  
 
 ###Project Status.
-Working on Layer 0.
+* **Layer 0:**
+    * Signing request. [Done but not well tested]
 
 [ ![Codeship Status for gjersvik/AmazonDart](https://www.codeship.io/projects/0e6905e0-9305-0131-1c79-0ef75c22b34f/status?branch=master)](https://www.codeship.io/projects/16595)
 
