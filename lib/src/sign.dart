@@ -105,9 +105,9 @@ class Sign{
       canon.writeln(req.headers['host']);
     }
     // CanonicalURI
-    canon.writeln(req.uri.path);
+    canon.writeln(canonicalPath(req.uri.pathSegments));
     // CanonicalQueryString
-    canon.write(canonicalQueryString(req.uri.queryParameters));
+    canon.write(canonicalQuery(req.uri.queryParameters));
     // v2 ends here.
     if(version == 2){
       return canon.toString();
@@ -149,14 +149,6 @@ class Sign{
   }
   
   String credentialScope(Request req) => scope(req).join('/');
-  
-  String canonicalQueryString(Map<String,String> query){
-    var keys = query.keys.toList();
-    keys.sort(); 
-    return keys.map((String key){
-      return Uri.encodeComponent(key) +'='+ Uri.encodeComponent(query[key]);
-    }).join('&');
-  }
   
   String canonicalHeaders(Map<String,String> headers){
     var canon = new Map.fromIterables(
