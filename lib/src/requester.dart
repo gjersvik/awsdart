@@ -5,7 +5,7 @@ abstract class Requester{
 }
 
 class Request{
-  String metode = 'GET';
+  String method = 'GET';
   Uri uri;
   Map<String,String> headers = {};
   List<int> body = [];

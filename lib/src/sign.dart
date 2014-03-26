@@ -99,7 +99,7 @@ class Sign{
   String canonical(Request req, [version = 4]){
     var canon = new StringBuffer();
     // both v2 and v4 start wit metode
-    canon.writeln(req.metode);
+    canon.writeln(req.method);
     // v2 need host before path
     if(version == 2){
       canon.writeln(req.headers['host']);

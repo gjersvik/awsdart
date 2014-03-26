@@ -5,7 +5,7 @@ class IoRequester extends Requester{
 
   @override
   Future<Response> request(Request req) {
-    return _client.openUrl(req.metode, req.uri)
+    return _client.openUrl(req.method, req.uri)
         .then((HttpClientRequest request){
           if(req.headers != null){
             req.headers.forEach(request.headers.add);

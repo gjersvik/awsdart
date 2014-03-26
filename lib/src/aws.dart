@@ -6,59 +6,44 @@ part of awsdart;
  *  Its jobb is to help send request to Amazone Web Services apis. It takes care
  *  of task that is valid for all amazone requets like:
  *  
- *  * Singing requests with youre secrect key. (TODO)
- *  * Checking checksums where aplicable. (TODO)
- *  * Retrying request wit exponetial backoff. (TODO)
+ *  * Singing requests with youre secrect key.
  * 
  */
 class Aws{
-  /**
-   *  Set the default instance of [Aws] that is used by this library.
-   *  
-   *  If not set manualy its set to the first intance of [Aws] that is created.
-   */
-  static setDefault(Aws aws) => _default = aws;
+  static final _logger = LoggerFactory.getLoggerFor(Aws);
   
-  /**
-   *  Get the deafult instance of [Aws].
-   *  
-   *  If no inctance is set one is crated by trying to get creaentials from the
-   *  enviroment.
-   *  
-   *  If no creaentials are found it will throw an exseption.
-   */
-  factory Aws(){
-    if(_default != null){
-      return _default;
-    }
-    return new Aws.create();
-  }
-  
-  
-  /**
-   *  Create a new instance of [Aws].
-   *  
-   */
-  Aws.create({this.accessKey, this.secretKey}){
-    if(_default == null){
-      _default = this;
-    }
-    sign = new Sign(accessKey,secretKey);
-  }
-  
-  Sign sign;
-  Requester server = new IoRequester();
+  Sign _sign;
+  Requester _server = new IoRequester();
   
   /// Access key ID that tells AWS how you are.
   String accessKey;
   /// Secret access key proves how you are.
   String secretKey;
   
-  static Aws _default;
-  static final _logger = LoggerFactory.getLoggerFor(Aws);
+  /**
+   *  Create a new instance of [Aws].
+   *  
+   */
+  Aws({this.accessKey, this.secretKey}){
+    _sign = new Sign(accessKey,secretKey);
+  }
   
+  /**
+   * Request a Amazone Web Service like request.
+   * 
+   * Makes a request based on your uri.
+   * 
+   * Before it is sent its signed wit your [accessKey] and [secretKey].
+   * 
+   * The important optional parameters are [method],[headers],[body] and 
+   * [signVersion]. The last [signVersion] you decide if the request is to be
+   * signed wit version 2 or 4 of aws signature algorithm.
+   * 
+   * [region],[service] and [time] let you override some of the signing
+   * parameters. And should not be needed to change in normal circumstances.
+   */
   Future<Response> request(Uri uri,{
-      String metode: 'GET',
+      String method: 'GET',
       Map<String,String> headers,
       List<int> body,
       String region,
@@ -70,7 +55,7 @@ class Aws{
     //Creates a request object.
     var req = new Request();
     req.uri = uri;
-    req.metode = metode;
+    req.method = method;
     if(headers != null){
       req.headers.addAll(headers);
     }
@@ -108,9 +93,9 @@ class Aws{
     }
     
     //Sign the request.
-    req = sign.authenticateRequest(req, signVersion);
+    req = _sign.authenticateRequest(req, signVersion);
     
-    return server.request(req).then((res){
+    return _server.request(req).then((res){
       //logging
       var log = '${req.uri} ${res.statusCode} ${res.statusString}';
       if(res.statusCode < 400){
@@ -135,9 +120,9 @@ class Aws{
         }
         
         if(res.statusCode == 403){
-          _logger.debug('Canonical request: \n${sign.canonical(req, signVersion)}');
+          _logger.debug('Canonical request: \n${_sign.canonical(req, signVersion)}');
           if(signVersion == 4){
-            _logger.debug('String to sign: \n${sign.toSign(req, 4)}');
+            _logger.debug('String to sign: \n${_sign.toSign(req, 4)}');
           }
         }
       }
