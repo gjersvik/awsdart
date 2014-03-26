@@ -11,3 +11,4 @@ part 'src/aws.dart';
 part 'src/io_requester.dart';
 part 'src/requester.dart';
 part 'src/sign.dart';
+part 'src/utils.dart';

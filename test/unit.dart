@@ -8,6 +8,7 @@ import 'package:awsdart/awsdart.dart';
 part 'src/aws.dart';
 part 'src/io_requester.dart';
 part 'src/sign.dart';
+part 'src/utils.dart';
 
 main(){
   useVMConfiguration();
@@ -15,4 +16,5 @@ main(){
   awsTest();
   ioRequesterTest();
   signTest();
+  utilsTest();
 }
