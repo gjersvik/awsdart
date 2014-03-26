@@ -57,8 +57,51 @@ class Aws{
 
   static Aws _default;
   
-  Future<Response> request(req,[version = 4]){
-    req = sign.authenticateRequest(req, version);
+  
+  Future<Response> request(Uri uri,{
+      String metode: 'GET',
+      Map<String,String> headers,
+      List<int> body,
+      String region,
+      String service,
+      DateTime time,
+      int signVersion: 4
+    }){
+    
+    //Creates a request object.
+    var req = new Request();
+    req.uri = uri;
+    req.metode = metode;
+    if(headers != null){
+      req.headers.addAll(headers);
+    }
+    if(body != null){
+      req.body = body;
+    }
+    //TODO auto find region and service.
+    req.region = region;
+    req.service = service;
+    if(time != null){
+      req.time =  time.toUtc();
+    }
+    
+    //set Host header if not set.
+    req.headers.putIfAbsent('Host', () => req.uri.host);
+    //set Date header if not set.
+    req.headers.putIfAbsent('Date',
+        () => new DateFormat("yyyyMMddTHHmmss'Z'").format(req.time));
+    
+    //Calculate hash of body.
+    //Use x-amz-content-sha256 header if set.
+    if(req.headers.containsKey('x-amz-content-sha256')){
+      req.hashCode = hexToBytes(req.headers['x-amz-content-sha256']);
+    }else{
+      req.bodyHash = (new SHA256()..add(req.body)).close();
+      req.headers['x-amz-content-sha256'] = bytesToHex(req.bodyHash);
+    }
+    
+    //Sign the request.
+    req = sign.authenticateRequest(req, signVersion);
     return server.request(req);
   }
 }

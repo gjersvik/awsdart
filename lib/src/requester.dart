@@ -8,11 +8,11 @@ class Request{
   String metode = 'GET';
   Uri uri;
   Map<String,String> headers = {};
-  List<int> body;
+  List<int> body = [];
   List<int> bodyHash;
   String region;
   String service;
-  DateTime time;
+  DateTime time = new DateTime.now().toUtc();
 }
 
 class Response{

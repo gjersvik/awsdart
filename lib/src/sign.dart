@@ -32,15 +32,6 @@ class Sign{
   }
   
   Request prepare(Request req, [version = 4]){
-    // both v2 and v4 need time infomation;
-    if(req.time == null){
-      req.time = new DateTime.now().toUtc();
-    }
-    // both v2 and v4 need correct host;
-    if(!req.headers.containsKey('host')){
-      req.headers['host'] = req.uri.host;
-    }
-    
     if(version == 4){
       // v4 need reagion and service.
       if(req.region == null){
@@ -49,8 +40,6 @@ class Sign{
       if(req.service == null){
         req.service =  req.headers['host'].split('.').reversed.elementAt(3);
       }
-      // v4 need good date header.
-      req.headers['Date'] = long4.format(req.time);
     }
     
     if(version == 2){
