@@ -6,6 +6,8 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
+import "package:log4dart/log4dart.dart";
+
 
 part 'src/aws.dart';
 part 'src/io_requester.dart';

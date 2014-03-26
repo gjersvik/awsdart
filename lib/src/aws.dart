@@ -54,9 +54,8 @@ class Aws{
   /// Secret access key proves how you are.
   String secretKey;
   
-
   static Aws _default;
-  
+  static final _logger = LoggerFactory.getLoggerFor(Aws);
   
   Future<Response> request(Uri uri,{
       String metode: 'GET',
@@ -110,6 +109,40 @@ class Aws{
     
     //Sign the request.
     req = sign.authenticateRequest(req, signVersion);
-    return server.request(req);
+    
+    return server.request(req).then((res){
+      //logging
+      var log = '${req.uri} ${res.statusCode} ${res.statusString}';
+      if(res.statusCode < 400){
+        _logger.info(log);
+      }else{
+        _logger.warn(log);
+      }
+      
+      //debug log;
+      if(_logger.debugEnabled){
+        // req headers'
+        var headers = 'Request Headers: \n';
+        req.headers.forEach((k,v)=> headers += '$k: $v\n');
+        _logger.debug(headers);
+        // responce headers.
+        headers = 'Responce Headers: \n';
+        res.headers.forEach((k,v)=> headers += '$k: $v\n');
+        _logger.debug(headers);
+        
+        if(res.statusCode >= 400){
+          _logger.debug(UTF8.decode(res.body));
+        }
+        
+        if(res.statusCode == 403){
+          _logger.debug('Canonical request: \n${sign.canonical(req, signVersion)}');
+          if(signVersion == 4){
+            _logger.debug('String to sign: \n${sign.toSign(req, 4)}');
+          }
+        }
+      }
+      
+      return res;
+    });
   }
 }
