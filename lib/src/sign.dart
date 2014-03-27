@@ -150,20 +150,29 @@ class Sign{
   
   String credentialScope(Request req) => scope(req).join('/');
   
-  String canonicalHeaders(Map<String,String> headers){
-    var canon = new Map.fromIterables(
-        headers.keys.map((s)=>s.toLowerCase()),
-        headers.values.map((s)=>s.trim()));
-    
-    var headersList = canon.keys.toList();
-    headersList.sort();
-    return headersList.map((key) => '$key:${canon[key]}\n').join();
-  }
-  
   String signedHeaders(Map<String,String> headers){
     var headersList = headers.keys.map((s)=>s.toLowerCase()).toList();
     headersList.sort();
     return headersList.join(';');
+  }
+  
+  String canonicalHeaders(Map<String,String> headers){
+    var keys = headers.keys;
+    keys = keys.map((s)=>s.toLowerCase());
+    
+    var values = headers.values;
+    values = values.map((s)=>s.trim());
+    //Trim whitespace that is not inside "".
+    //Dont understand reqexp see:
+    //http://stackoverflow.com/questions/6462578/alternative-to-regex-match-all-instances-not-inside-quotes
+    values = values.map((s)=>s.replaceAll(
+        new RegExp(r'\s+(?=([^"]*"[^"]*")*[^"]*$)'),' '));
+    
+    var canon = new Map.fromIterables(keys,values);
+    
+    var headersList = canon.keys.toList();
+    headersList.sort();
+    return headersList.map((key) => '$key:${canon[key]}\n').join();
   }
   
   String canonicalPath(List<String> path){
