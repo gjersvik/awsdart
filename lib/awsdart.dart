@@ -3,6 +3,7 @@ library awsdart;
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:collection';
 
 import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';

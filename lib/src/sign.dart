@@ -63,7 +63,7 @@ class Sign{
     auth.write('/');
     auth.write(credentialScope(req));
     auth.write(', SignedHeaders=');
-    auth.write(signedHeaders(req.headers));
+    auth.write(signedHeaders(req.headers.keys));
     auth.write(', Signature=');
     auth.write(toHex(key));
     
@@ -117,7 +117,7 @@ class Sign{
     // CanonicalHeaders
     canon.writeln(canonicalHeaders(req.headers));
     // SignedHeaders
-    canon.writeln(signedHeaders(req.headers));
+    canon.writeln(signedHeaders(req.headers.keys));
     // PayloadHash
     canon.write(toHex(req.bodyHash));
     
@@ -150,10 +150,10 @@ class Sign{
   
   String credentialScope(Request req) => scope(req).join('/');
   
-  String signedHeaders(Map<String,String> headers){
-    var headersList = headers.keys.map((s)=>s.toLowerCase()).toList();
-    headersList.sort();
-    return headersList.join(';');
+  String signedHeaders(Iterable<String> keys){
+    final sortSet = new SplayTreeSet();
+    sortSet.addAll(keys.map((s)=>s.toLowerCase()));
+    return sortSet.join(';');
   }
   
   String canonicalHeaders(Map<String,String> headers){
@@ -165,7 +165,7 @@ class Sign{
     final values = headers.values
         .map((s)=>s.trim().replaceAll(trimer,' ')).iterator;
     
-    final canon = new Map(); 
+    final canon = new SplayTreeMap(); 
     while(keys.moveNext() && values.moveNext()){
       var key = keys.current;
       var value = values.current;
@@ -177,9 +177,7 @@ class Sign{
       }
     }
     
-    final headersList = canon.keys.toList();
-    headersList.sort();
-    return headersList.map((key) => '$key:${canon[key]}\n').join();
+    return canon.keys.map((key) => '$key:${canon[key]}\n').join();
   }
   
   String canonicalPath(List<String> path){

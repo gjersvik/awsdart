@@ -20,6 +20,24 @@ signTest() => group('Sign',(){
     
   });
   
+  group('signedHeaders',(){
+    test('[] =>',(){
+      expect(sign.signedHeaders([]),'');
+    });
+    
+    test('[A] => a',(){
+      expect(sign.signedHeaders(['A']),'a');
+    });
+    
+    test('[d,c,b,a] => a;b;c;d',(){
+      expect(sign.signedHeaders(['d','c','b','a']),'a;b;c;d');
+    });
+    
+    test('[abc, aBc,ABC] => abc',(){
+      expect(sign.signedHeaders(['abc', 'aBc','ABC']),'abc');
+    });
+  });
+  
   group('canonicalHeaders',(){
     test('{} => empty string',(){
       expect(sign.canonicalHeaders({}),'');
