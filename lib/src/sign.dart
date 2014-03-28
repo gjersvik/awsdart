@@ -150,6 +150,20 @@ class Sign{
   
   String credentialScope(Request req) => scope(req).join('/');
   
+  String canonical4(String httpRequestMethod,
+                    String canonicalURI,
+                    String canonicalQueryString,
+                    String canonicalHeaders,
+                    String signedHeaders,
+                    String payloadHash){
+    return [httpRequestMethod,
+            canonicalURI,
+            canonicalQueryString,
+            canonicalHeaders,
+            signedHeaders,
+            payloadHash].join('\n');
+  }
+  
   String signedHeaders(Iterable<String> keys){
     final sortSet = new SplayTreeSet();
     sortSet.addAll(keys.map((s)=>s.toLowerCase()));

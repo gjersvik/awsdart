@@ -20,6 +20,12 @@ signTest() => group('Sign',(){
     
   });
   
+  group('canonical4',(){
+    test('a b c d e f => a\\nb\\nc\\nd\\ne\\nf',(){
+      expect(sign.canonical4('a','b','c','d','e','f'),'a\nb\nc\nd\ne\nf');
+    });
+  });
+  
   group('signedHeaders',(){
     test('[] =>',(){
       expect(sign.signedHeaders([]),'');
