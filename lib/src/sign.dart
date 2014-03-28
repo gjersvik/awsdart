@@ -1,6 +1,7 @@
 part of awsdart;
 
 class Sign{
+  static final algorithm = 'AWS4-HMAC-SHA256';
   var iso = new DateFormat('yyyy-MM-ddTHH:mm:ss');
   var long4 = new DateFormat("yyyyMMddTHHmmss'Z'");
   var short4 = new DateFormat('yyyyMMdd');
@@ -149,6 +150,10 @@ class Sign{
   }
   
   String credentialScope(Request req) => scope(req).join('/');
+  
+  String toSign4(String requestDate, String credentialScope, String canonHash){
+    return [algorithm, requestDate, credentialScope, canonHash].join('\n');
+  }
   
   String canonical4(String httpRequestMethod,
                     String canonicalURI,

@@ -20,10 +20,12 @@ signTest() => group('Sign',(){
     
   });
   
-  group('canonical4',(){
-    test('a b c d e f => a\\nb\\nc\\nd\\ne\\nf',(){
-      expect(sign.canonical4('a','b','c','d','e','f'),'a\nb\nc\nd\ne\nf');
-    });
+  test('toSign4 a b c => AWS4-HMAC-SHA256\\na\\nb\\nc',(){
+    expect(sign.toSign4('a','b','c'),'AWS4-HMAC-SHA256\na\nb\nc');
+  });
+  
+  test('canonical4 a b c d e f => a\\nb\\nc\\nd\\ne\\nf',(){
+    expect(sign.canonical4('a','b','c','d','e','f'),'a\nb\nc\nd\ne\nf');
   });
   
   group('signedHeaders',(){
