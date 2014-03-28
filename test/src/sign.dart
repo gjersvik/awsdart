@@ -19,6 +19,53 @@ signTest() => group('Sign',(){
     req.time = new DateTime.utc(2011, 09, 09);
     
   });
+  
+  group('canonicalHeaders',(){
+    test('{} => empty string',(){
+      expect(sign.canonicalHeaders({}),'');
+    });
+    
+    test('{:} => :\\n',(){
+      expect(sign.canonicalHeaders({'':''}),':\n');
+    });
+    
+    test('{:} => :\\n',(){
+      expect(sign.canonicalHeaders({'':''}),':\n');
+    });
+    
+    test('{a:} => a:\\n',(){
+      expect(sign.canonicalHeaders({'a':''}),'a:\n');
+    });
+    
+    test('{a:b,c:,d:e} => a:b\\nc:\\nd:e\\n',(){
+      expect(sign.canonicalHeaders({'a':'b','c':'','d':'e',}),'a:b\nc:\nd:e\n');
+    });
+    
+    test('{c:t,b:t,a:t} => a:t\\nb:t\\nc:t\\n',(){
+      expect(sign.canonicalHeaders({'c':'t','b':'t','a':'t',}),'a:t\nb:t\nc:t\n');
+    });
+    
+    test('{c:t,B:t,a:t} => a:t\\nb:t\\nc:t\\n',(){
+      expect(sign.canonicalHeaders({'c':'t','B':'t','a':'t',}),'a:t\nb:t\nc:t\n');
+    });
+
+    test('{ABC:t} => abc:t',(){
+      expect(sign.canonicalHeaders({'ABC':'t'}),'abc:t\n');
+    });
+
+    test('{a:  t   t  } => abc:t t',(){
+      expect(sign.canonicalHeaders({'a':'  t  t  '}),'a:t t\n');
+    });
+
+    test('{a:  "t   t"  } => abc:"t  t"',(){
+      expect(sign.canonicalHeaders({'a':'  "t  t"  '}),'a:"t  t"\n');
+    });
+
+    test('{abc:a, aBc:b,ABC:c} => abc:a,b,c',(){
+      expect(sign.canonicalHeaders({'abc':'a', 'aBc':'b','ABC':'c'}),'abc:a,b,c\n');
+    });
+  });
+  
   group('canonicalPath',(){
     test('empty path => /',(){
       expect(sign.canonicalPath([]),'/');
@@ -87,54 +134,6 @@ signTest() => group('Sign',(){
 
     test('{Ø} => %20=',(){
       expect(sign.canonicalQuery({'Ø':'',}),'%C3%98=');
-    });
-  });
-  
-
-  
-  group('canonicalHeaders',(){
-    test('{} => empty string',(){
-      expect(sign.canonicalHeaders({}),'');
-    });
-    
-    test('{:} => :\\n',(){
-      expect(sign.canonicalHeaders({'':''}),':\n');
-    });
-    
-    test('{:} => :\\n',(){
-      expect(sign.canonicalHeaders({'':''}),':\n');
-    });
-    
-    test('{a:} => a:\\n',(){
-      expect(sign.canonicalHeaders({'a':''}),'a:\n');
-    });
-    
-    test('{a:b,c:,d:e} => a:b\\nc:\\nd:e\\n',(){
-      expect(sign.canonicalHeaders({'a':'b','c':'','d':'e',}),'a:b\nc:\nd:e\n');
-    });
-    
-    test('{c:t,b:t,a:t} => a:t\\nb:t\\nc:t\\n',(){
-      expect(sign.canonicalHeaders({'c':'t','b':'t','a':'t',}),'a:t\nb:t\nc:t\n');
-    });
-    
-    test('{c:t,B:t,a:t} => a:t\\nb:t\\nc:t\\n',(){
-      expect(sign.canonicalHeaders({'c':'t','B':'t','a':'t',}),'a:t\nb:t\nc:t\n');
-    });
-
-    test('{ABC:t} => abc:t',(){
-      expect(sign.canonicalHeaders({'ABC':'t'}),'abc:t\n');
-    });
-
-    test('{a:  t   t  } => abc:t t',(){
-      expect(sign.canonicalHeaders({'a':'  t  t  '}),'a:t t\n');
-    });
-
-    test('{a:  "t   t"  } => abc:"t  t"',(){
-      expect(sign.canonicalHeaders({'a':'  "t  t"  '}),'a:"t  t"\n');
-    });
-
-    test('{abc:a, aBc:b,ABC:c} => abc:a,b,c',(){
-      expect(sign.canonicalHeaders({'abc':'a', 'aBc':'b','ABC':'c'}),'abc:a,b,c\n');
     });
   });
 });

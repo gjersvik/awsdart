@@ -157,28 +157,27 @@ class Sign{
   }
   
   String canonicalHeaders(Map<String,String> headers){
-    var keys = headers.keys;
-    keys = keys.map((s)=>s.toLowerCase()).toList();
-    
-    var values = headers.values;
-    values = values.map((s)=>s.trim());
-    //Trim whitespace that is not inside "".
-    //Dont understand reqexp see:
+    //Match whitespace that is not inside "".
+    //Dont understand this reqexp see:
     //http://stackoverflow.com/questions/6462578/alternative-to-regex-match-all-instances-not-inside-quotes
-    values = values.map((s)=>s.replaceAll(
-        new RegExp(r'\s+(?=([^"]*"[^"]*")*[^"]*$)'),' ')).toList();
+    final RegExp trimer = new RegExp(r'\s+(?=([^"]*"[^"]*")*[^"]*$)'); 
+    final keys = headers.keys.map((s)=>s.toLowerCase()).iterator; 
+    final values = headers.values
+        .map((s)=>s.trim().replaceAll(trimer,' ')).iterator;
     
-    var canon = new Map();
-    
-    for(int i = 0; i < keys.length; i += 1){
-      if(canon.containsKey(keys[i])){
-        canon[keys[i]] += ',' + values[i];
+    final canon = new Map(); 
+    while(keys.moveNext() && values.moveNext()){
+      var key = keys.current;
+      var value = values.current;
+      
+      if(canon.containsKey(key)){
+        canon[key] += ',' + value;
       }else{
-        canon[keys[i]] = values[i];
+        canon[key] = value;
       }
     }
     
-    var headersList = canon.keys.toList();
+    final headersList = canon.keys.toList();
     headersList.sort();
     return headersList.map((key) => '$key:${canon[key]}\n').join();
   }
