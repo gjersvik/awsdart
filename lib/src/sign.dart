@@ -11,6 +11,33 @@ class Sign{
   
   Sign(this.accessKey,String secretKey): secretKey = UTF8.encode(secretKey);
   
+  Request sign2(Request req){
+    return req;
+  }
+  
+  Request sign4(Request req,{String region,
+                             String service}){
+    final method = req.method;
+    final path = canonicalPath(req.uri.pathSegments);
+    final query = canonicalQuery(req.uri.queryParameters);
+    final headers = canonicalHeaders(req.headers);
+    final signed = signedHeaders(req.headers.keys);
+    final payloadHash = req.headers['x-amz-content-sha256'];
+    final canonical = canonical4(method,path,query,headers,signed,payloadHash);
+    
+    final date = req.headers['Date'].replaceAll('Z', '');
+    
+    final canonicalHash = hashHex(canonical);
+    //final toSign = toSign4();
+    return req;
+  }
+
+  String hashHex(String data){
+    final sha = new SHA256();
+    sha.add(UTF8.encode(data));
+    return bytesToHex(sha.close());
+  }
+  
   Request authenticateRequest(Request req, [version = 4]){
     //preperare request.
     req = prepare(req,version);
@@ -62,7 +89,7 @@ class Sign{
     auth.write('AWS4-HMAC-SHA256 Credential=');
     auth.write(accessKey);
     auth.write('/');
-    auth.write(credentialScope(req));
+    auth.write(credentialScope(scope(req)));
     auth.write(', SignedHeaders=');
     auth.write(signedHeaders(req.headers.keys));
     auth.write(', Signature=');
@@ -139,7 +166,7 @@ class Sign{
     canon.writeln(long4.format(req.time));
     
     // 3. CredentialScope
-    canon.writeln(credentialScope(req));
+    canon.writeln(credentialScope(scope(req)));
     
     // 4. HashedCanonicalRequest
     var hash =  new SHA256();
@@ -148,21 +175,21 @@ class Sign{
     
     return canon.toString();
   }
-  
-  String credentialScope(Request req) => scope(req).join('/');
-  
+
   String toSign4(String requestDate, String credentialScope, String canonHash){
     return [algorithm, requestDate, credentialScope, canonHash].join('\n');
   }
   
+  String credentialScope(List<String> scope) => scope.join('/');
+  
   String canonical4(String httpRequestMethod,
-                    String canonicalURI,
+                    String canonicalPath,
                     String canonicalQueryString,
                     String canonicalHeaders,
                     String signedHeaders,
                     String payloadHash){
     return [httpRequestMethod,
-            canonicalURI,
+            canonicalPath,
             canonicalQueryString,
             canonicalHeaders,
             signedHeaders,
