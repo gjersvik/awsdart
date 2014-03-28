@@ -132,5 +132,9 @@ signTest() => group('Sign',(){
     test('{a:  "t   t"  } => abc:"t  t"',(){
       expect(sign.canonicalHeaders({'a':'  "t  t"  '}),'a:"t  t"\n');
     });
+
+    test('{abc:a, aBc:b,ABC:c} => abc:a,b,c',(){
+      expect(sign.canonicalHeaders({'abc':'a', 'aBc':'b','ABC':'c'}),'abc:a,b,c\n');
+    });
   });
 });

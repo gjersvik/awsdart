@@ -158,7 +158,7 @@ class Sign{
   
   String canonicalHeaders(Map<String,String> headers){
     var keys = headers.keys;
-    keys = keys.map((s)=>s.toLowerCase());
+    keys = keys.map((s)=>s.toLowerCase()).toList();
     
     var values = headers.values;
     values = values.map((s)=>s.trim());
@@ -166,9 +166,17 @@ class Sign{
     //Dont understand reqexp see:
     //http://stackoverflow.com/questions/6462578/alternative-to-regex-match-all-instances-not-inside-quotes
     values = values.map((s)=>s.replaceAll(
-        new RegExp(r'\s+(?=([^"]*"[^"]*")*[^"]*$)'),' '));
+        new RegExp(r'\s+(?=([^"]*"[^"]*")*[^"]*$)'),' ')).toList();
     
-    var canon = new Map.fromIterables(keys,values);
+    var canon = new Map();
+    
+    for(int i = 0; i < keys.length; i += 1){
+      if(canon.containsKey(keys[i])){
+        canon[keys[i]] += ',' + values[i];
+      }else{
+        canon[keys[i]] = values[i];
+      }
+    }
     
     var headersList = canon.keys.toList();
     headersList.sort();
