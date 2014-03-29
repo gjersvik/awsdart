@@ -17,6 +17,10 @@ signTest() => group('Sign',(){
         'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
   });
   
+  test('version2date 20130607T080910Z = 2013-06-07T08:09:10',(){
+    expect(sign.version2date('20130607T080910Z'),'2013-06-07T08:09:10');
+  });
+  
   test('getSigningKey',(){
     final scope = ['20110909','us-east-1','iam','aws4_request'];
     final signingKey = [152, 241, 216, 137, 254, 196, 244,  66,

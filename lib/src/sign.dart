@@ -78,8 +78,23 @@ class Sign{
     return hmac.close();
   }
   
-  String version2date(String date){
-    return date;
+  String version2date(String datetime){
+    var from = datetime.split('').toList();
+    var to = [];
+    to.addAll(from.take(4));
+    from.removeRange(0, 4);
+    to.add('-');
+    to.addAll(from.take(2));
+    from.removeRange(0, 2);
+    to.add('-');
+    to.addAll(from.take(5));
+    from.removeRange(0, 5);
+    to.add(':');
+    to.addAll(from.take(2));
+    from.removeRange(0, 2);
+    to.add(':');
+    to.addAll(from.take(2));
+    return to.join();
   }
   
   List<int> getSigningKey(List<String> scope){
