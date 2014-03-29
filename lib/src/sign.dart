@@ -3,8 +3,6 @@ part of awsdart;
 class Sign{
   static final algorithm = 'AWS4-HMAC-SHA256';
   var iso = new DateFormat('yyyy-MM-ddTHH:mm:ss');
-  var long4 = new DateFormat("yyyyMMddTHHmmss'Z'");
-  var short4 = new DateFormat('yyyyMMdd');
   
   final String accessKey;
   final String secretKey;
@@ -12,6 +10,26 @@ class Sign{
   Sign(this.accessKey,this.secretKey);
   
   Request sign2(Request req){
+    final query = req.uri.queryParameters;
+    query['AWSAccessKeyId'] = accessKey;
+    query['SignatureVersion'] = '2';
+    query['SignatureMethod'] = 'HmacSHA256';
+    query['Timestamp'] = version2date(req.headers['Date']);
+    
+    final method = req.method;
+    final host = req.headers['Host'];
+    final path = canonicalPath(req.uri.pathSegments);
+    final queryString = canonicalQuery(query);
+    final canonical = canonical2(method, host, path, query);
+    
+    final signingKey = UTF8.encode(secretKey);
+    final signature = bytesToHex(hmac(signingKey, canonical));
+    
+    query['Signature'] = Uri.encodeComponent(CryptoUtils.bytesToBase64(signature));
+    
+    req.uri = new Uri(scheme: req.uri.scheme, userInfo: req.uri.userInfo, 
+              host: req.uri.host, port: req.uri.port,
+              path: req.uri.path, query: req.uri.query);
     return req;
   }
   
@@ -60,72 +78,9 @@ class Sign{
     return hmac.close();
   }
   
-  Request authenticateRequest(Request req, [version = 4]){
-    //preperare request.
-    req = prepare(req,version);
-    
-    //get string to sign.
-    var string = toSign(req, version);
-    
-    //get signing key.
-    var key = getKey(req, version);
-    
-    //sign request.
-    var hmac = sign(key,string);
-    
-    //write authentication.
-    if(version == 4){
-      return writeAuth4(req,hmac);
-    }else{
-      return writeAuth2(req,hmac);
-    }
+  String version2date(String date){
+    return date;
   }
-  
-  Request prepare(Request req, [version = 4]){
-    if(version == 2){
-      //v2 need most of autetication parametes set before signing.
-      var query = new Map.from( req.uri.queryParameters);
-      query['AWSAccessKeyId'] = accessKey;
-      query['SignatureVersion'] = '2';
-      query['SignatureMethod'] = 'HmacSHA256';
-      query['Timestamp'] = iso.format(req.time);
-      req.uri = new Uri(scheme: req.uri.scheme, userInfo: req.uri.userInfo, 
-          host: req.uri.host, port: req.uri.port,
-          path: req.uri.path, query: req.uri.query);
-    }
-    
-    return req;
-  }
-  
-  Request writeAuth2(Request req, key){
-    var query = req.uri.queryParameters;
-    query['Signature'] = toUrl(key);
-    req.uri = new Uri(scheme: req.uri.scheme, userInfo: req.uri.userInfo, 
-              host: req.uri.host, port: req.uri.port,
-              path: req.uri.path, query: req.uri.query);
-    return req;
-  }
-  
-  Request writeAuth4(Request req, key){
-    var auth = new StringBuffer();
-    auth.write('AWS4-HMAC-SHA256 Credential=');
-    auth.write(accessKey);
-    auth.write('/');
-    auth.write(credentialScope(scope(req)));
-    auth.write(', SignedHeaders=');
-    auth.write(signedHeaders(req.headers.keys));
-    auth.write(', Signature=');
-    auth.write(toHex(key));
-    
-    req.headers['Authorization'] = auth.toString();
-    return req;
-  }
-
-  String toUrl(List<int> hash) 
-      => Uri.encodeComponent(CryptoUtils.bytesToBase64(hash));
-  
-  String toHex(List<int> hash) 
-      => CryptoUtils.bytesToHex(hash);
   
   List<int> getSigningKey(List<String> scope){
     return scope.fold(UTF8.encode('AWS4' + secretKey), hmac);
@@ -141,6 +96,16 @@ class Sign{
   }
   
   String credentialScope(List<String> scope) => scope.join('/');
+  
+  String canonical2(String httpRequestMethod,
+                    String canonicalHost,
+                    String canonicalPath,
+                    String canonicalQueryString){
+    return [httpRequestMethod,
+            canonicalHost,
+            canonicalPath,
+            canonicalQueryString].join('\n');
+  }
   
   String canonical4(String httpRequestMethod,
                     String canonicalPath,
