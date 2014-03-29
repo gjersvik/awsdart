@@ -1,23 +1,20 @@
 part of awsdart;
 
-abstract class Requester{
-  Future<Response> request(Request req);
-}
+/// Callback for doing the http request over the network.
+typedef Future<Response> Requester(Request req);
 
+/// Internal class for repersenting a request out of the library.
 class Request{
   String method = 'GET';
-  Uri uri;
+  Uri uri = new Uri();
   Map<String,String> headers = {};
   List<int> body = [];
-  List<int> bodyHash;
-  String region;
-  String service;
-  DateTime time = new DateTime.now().toUtc();
 }
 
+/// Internal class for repersenting response from a request out of the library.
 class Response{
-  int statusCode;
-  String statusString;
-  Map<String,String> headers;
-  List<int> body;
+  int statusCode = 0;
+  String statusString = '';
+  Map<String,String> headers= {};
+  List<int> body = [];
 }

@@ -1,6 +1,6 @@
 part of awsdart;
 
-class IoRequester extends Requester{
+class IoRequester{
   HttpClient _client =  new HttpClient();
 
   @override

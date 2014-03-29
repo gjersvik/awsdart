@@ -13,7 +13,7 @@ class Aws{
   static final _logger = LoggerFactory.getLoggerFor(Aws);
   
   Sign _sign;
-  Requester _server = new IoRequester();
+  Requester _server = new IoRequester().request;
   
   /// Access key ID that tells AWS how you are.
   String accessKey;
@@ -36,7 +36,7 @@ class Aws{
    * Before it is sent its signed wit your [accessKey] and [secretKey].
    * 
    * The important optional parameters are [method],[headers],[body] and 
-   * [signVersion]. The last [signVersion] you decide if the request is to be
+   * [signVersion]. [signVersion] lets you decide if the request is to be
    * signed wit version 2 or 4 of aws signature algorithm.
    * 
    * [region],[service] and [time] let you override some of the signing
@@ -62,44 +62,38 @@ class Aws{
     if(body != null){
       req.body = body;
     }
-    if(region != null){
-      req.region = region;
-    }else{
-      req.region = hostnameToRegion(req.uri.host);
-    }
-    if(service != null){
-      req.service = service;
-    }else{
-      req.service = hostnameToService(req.uri.host);
-    }
-    
-    if(time != null){
-      req.time =  time.toUtc();
-    }
     
     //set Host header if not set.
     req.headers.putIfAbsent('Host', () => req.uri.host);
     //set Date header if not set.
+    if(time == null){
+      time = new DateTime.now().toUtc();
+    }
     req.headers.putIfAbsent('Date',
-        () => new DateFormat("yyyyMMddTHHmmss'Z'").format(req.time));
+        () => new DateFormat("yyyyMMddTHHmmss'Z'").format(time));
     
-    //Calculate hash of body.
     //Use x-amz-content-sha256 header if set.
-    if(req.headers.containsKey('x-amz-content-sha256')){
-      req.hashCode = hexToBytes(req.headers['x-amz-content-sha256']);
-    }else{
-      req.bodyHash = (new SHA256()..add(req.body)).close();
-      req.headers['x-amz-content-sha256'] = bytesToHex(req.bodyHash);
+    if(!req.headers.containsKey('x-amz-content-sha256')){
+      var hash = (new SHA256()..add(req.body)).close();
+      req.headers['x-amz-content-sha256'] = bytesToHex(hash);
     }
     
     //Sign the request.
     if(signVersion == 4){
-      req = _sign.sign4(req, service: req.service, region: req.region);
+
+      if(region == null){
+        region = hostnameToRegion(req.uri.host);
+      }
+      if(service == null){
+        service = hostnameToService(req.uri.host);
+      }
+      
+      req = _sign.sign4(req, service: service, region: region);
     }else{
       req = _sign.sign2(req);
     }
     
-    return _server.request(req).then((res){
+    return _server(req).then((res){
       //logging
       var log = '${req.uri} ${res.statusCode} ${res.statusString}';
       if(res.statusCode < 400){
