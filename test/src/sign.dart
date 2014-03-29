@@ -18,7 +18,12 @@ signTest() => group('Sign',(){
   });
   
   test('toSign4 a b c => AWS4-HMAC-SHA256\\na\\nb\\nc',(){
-    expect(sign.toSign4('a','b','c'),'AWS4-HMAC-SHA256\na\nb\nc');
+    expect(sign.toSign('a','b','c'),'AWS4-HMAC-SHA256\na\nb\nc');
+  });
+    
+  test('scope 20000101T000000Z b c => 20000101 b c aws4_request',(){
+    expect(sign.scope('20000101T000000Z', 'b', 'c'),
+        ['20000101', 'b', 'c', 'aws4_request']);
   });
   
   test('canonical4 a b c d e f => a\\nb\\nc\\nd\\ne\\nf',(){

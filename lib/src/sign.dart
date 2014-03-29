@@ -25,10 +25,10 @@ class Sign{
     final payloadHash = req.headers['x-amz-content-sha256'];
     final canonical = canonical4(method,path,query,headers,signed,payloadHash);
     
-    final date = req.headers['Date'].replaceAll('Z', '');
-    
+    final date = req.headers['Date'];
+    final credential = credentialScope(scope(date, region, service));
     final canonicalHash = hashHex(canonical);
-    //final toSign = toSign4();
+    final stringToSign = toSign(date, credential, canonicalHash);
     return req;
   }
 
@@ -111,10 +111,6 @@ class Sign{
   String toHex(List<int> hash) 
       => CryptoUtils.bytesToHex(hash);
   
-  List<String> scope(Request req){
-    return [short4.format(req.time), req.region, req.service, 'aws4_request'];
-  }
-  
   List<int> getKey(Request req, [version = 4]){
     if(version == 4){
       var key = UTF8.encode('AWS4').toList();
@@ -123,61 +119,14 @@ class Sign{
     }
     return secretKey;
   }
-  
-  String canonical(Request req, [version = 4]){
-    var canon = new StringBuffer();
-    // both v2 and v4 start wit metode
-    canon.writeln(req.method);
-    // v2 need host before path
-    if(version == 2){
-      canon.writeln(req.headers['host']);
-    }
-    // CanonicalURI
-    canon.writeln(canonicalPath(req.uri.pathSegments));
-    // CanonicalQueryString
-    canon.write(canonicalQuery(req.uri.queryParameters));
-    // v2 ends here.
-    if(version == 2){
-      return canon.toString();
-    }
-    canon.write('\n');
-    
-    // CanonicalHeaders
-    canon.writeln(canonicalHeaders(req.headers));
-    // SignedHeaders
-    canon.writeln(signedHeaders(req.headers.keys));
-    // PayloadHash
-    canon.write(toHex(req.bodyHash));
-    
-    return canon.toString();
-  }
-  
-  String toSign(Request req, [version = 4]){
-    // if verson 2 return canonical.
-    if(version == 2){
-      return canonical(req, version);
-    }
-    var canon = new StringBuffer();
-    
-    // 1. Algorithm
-    canon.writeln('AWS4-HMAC-SHA256');
-    
-    // 2. RequestDate
-    canon.writeln(long4.format(req.time));
-    
-    // 3. CredentialScope
-    canon.writeln(credentialScope(scope(req)));
-    
-    // 4. HashedCanonicalRequest
-    var hash =  new SHA256();
-    hash.add(UTF8.encode(canonical(req, version)));
-    canon.write(toHex(hash.close()));
-    
-    return canon.toString();
-  }
 
-  String toSign4(String requestDate, String credentialScope, String canonHash){
+  String toSign(String requestDate, String credentialScope, String canonHash){
     return [algorithm, requestDate, credentialScope, canonHash].join('\n');
+  }
+  
+  List<String> scope(String date, String region, String service){
+    final day = date.substring(0, 8);
+    return [day, region, service, 'aws4_request'];
   }
   
   String credentialScope(List<String> scope) => scope.join('/');
