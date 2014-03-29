@@ -5,7 +5,7 @@ signTest() => group('Sign',(){
   
   setUp((){
     sign = new Sign('AKIAIOSFODNN7EXAMPLE',
-        'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY');
+        'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY');
   });
   
   tearDown((){
@@ -17,12 +17,21 @@ signTest() => group('Sign',(){
         'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
   });
   
-  test('toSign4 a b c => AWS4-HMAC-SHA256\\na\\nb\\nc',(){
+  test('getSigningKey',(){
+    final scope = ['20110909','us-east-1','iam','aws4_request'];
+    final signingKey = [152, 241, 216, 137, 254, 196, 244,  66,
+                         26, 220,  82,  43, 171,  12, 225, 248,
+                         46, 105,  41, 194,  98, 237,  21, 229,
+                        169,  76, 144, 239, 209, 227, 176, 231];
+    expect(sign.getSigningKey(scope),signingKey);
+  });
+  
+  test('toSign a b c => AWS4-HMAC-SHA256\\na\\nb\\nc',(){
     expect(sign.toSign('a','b','c'),'AWS4-HMAC-SHA256\na\nb\nc');
   });
     
-  test('scope 20000101T000000Z b c => 20000101 b c aws4_request',(){
-    expect(sign.scope('20000101T000000Z', 'b', 'c'),
+  test('getScope 20000101T000000Z b c => 20000101 b c aws4_request',(){
+    expect(sign.getScope('20000101T000000Z', 'b', 'c'),
         ['20000101', 'b', 'c', 'aws4_request']);
   });
   

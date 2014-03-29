@@ -7,9 +7,9 @@ class Sign{
   var short4 = new DateFormat('yyyyMMdd');
   
   final String accessKey;
-  final List<int> secretKey;
+  final String secretKey;
   
-  Sign(this.accessKey,String secretKey): secretKey = UTF8.encode(secretKey);
+  Sign(this.accessKey,this.secretKey);
   
   Request sign2(Request req){
     return req;
@@ -26,9 +26,25 @@ class Sign{
     final canonical = canonical4(method,path,query,headers,signed,payloadHash);
     
     final date = req.headers['Date'];
-    final credential = credentialScope(scope(date, region, service));
+    final scope = getScope(date, region, service);
+    final credential = credentialScope(scope);
     final canonicalHash = hashHex(canonical);
     final stringToSign = toSign(date, credential, canonicalHash);
+    
+    final signingKey = getSigningKey(scope);
+    final signature = bytesToHex(hmac(signingKey, stringToSign));
+    
+    var auth = new StringBuffer();
+    auth.write('AWS4-HMAC-SHA256 Credential=');
+    auth.write(accessKey);
+    auth.write('/');
+    auth.write(credential);
+    auth.write(', SignedHeaders=');
+    auth.write(signed);
+    auth.write(', Signature=');
+    auth.write(signature);
+    
+    req.headers['Authorization'] = auth.toString();
     return req;
   }
 
@@ -36,6 +52,12 @@ class Sign{
     final sha = new SHA256();
     sha.add(UTF8.encode(data));
     return bytesToHex(sha.close());
+  }
+  
+  List<int> hmac(List<int> key, String toSign){
+    final hmac = new HMAC(new SHA256(),key);
+    hmac.add(UTF8.encode(toSign));
+    return hmac.close();
   }
   
   Request authenticateRequest(Request req, [version = 4]){
@@ -98,33 +120,22 @@ class Sign{
     req.headers['Authorization'] = auth.toString();
     return req;
   }
-  
-  sign(List<int> key, String toSign){
-    var hmac = new HMAC(new SHA256(),key);
-    hmac.add(UTF8.encode(toSign));
-    return hmac.close();
-  }
-  
+
   String toUrl(List<int> hash) 
       => Uri.encodeComponent(CryptoUtils.bytesToBase64(hash));
   
   String toHex(List<int> hash) 
       => CryptoUtils.bytesToHex(hash);
   
-  List<int> getKey(Request req, [version = 4]){
-    if(version == 4){
-      var key = UTF8.encode('AWS4').toList();
-      key.addAll(secretKey);
-      return scope(req).fold(key, sign);
-    }
-    return secretKey;
+  List<int> getSigningKey(List<String> scope){
+    return scope.fold(UTF8.encode('AWS4' + secretKey), hmac);
   }
 
   String toSign(String requestDate, String credentialScope, String canonHash){
     return [algorithm, requestDate, credentialScope, canonHash].join('\n');
   }
   
-  List<String> scope(String date, String region, String service){
+  List<String> getScope(String date, String region, String service){
     final day = date.substring(0, 8);
     return [day, region, service, 'aws4_request'];
   }
