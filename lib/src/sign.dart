@@ -10,7 +10,7 @@ class Sign{
   Sign(this.accessKey,this.secretKey);
   
   Request sign2(Request req){
-    final query = req.uri.queryParameters;
+    final query = new Map.from(req.uri.queryParameters);
     query['AWSAccessKeyId'] = accessKey;
     query['SignatureVersion'] = '2';
     query['SignatureMethod'] = 'HmacSHA256';
@@ -20,16 +20,16 @@ class Sign{
     final host = req.headers['Host'];
     final path = canonicalPath(req.uri.pathSegments);
     final queryString = canonicalQuery(query);
-    final canonical = canonical2(method, host, path, query);
+    final canonical = canonical2(method, host, path, queryString);
     
     final signingKey = UTF8.encode(secretKey);
-    final signature = bytesToHex(hmac(signingKey, canonical));
+    final signature = hmac(signingKey, canonical);
     
-    query['Signature'] = Uri.encodeComponent(CryptoUtils.bytesToBase64(signature));
+    query['Signature'] = CryptoUtils.bytesToBase64(signature);
     
     req.uri = new Uri(scheme: req.uri.scheme, userInfo: req.uri.userInfo, 
               host: req.uri.host, port: req.uri.port,
-              path: req.uri.path, query: req.uri.query);
+              path: req.uri.path, queryParameters: query);
     return req;
   }
   
