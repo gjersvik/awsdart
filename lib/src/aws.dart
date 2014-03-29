@@ -93,7 +93,11 @@ class Aws{
     }
     
     //Sign the request.
-    req = _sign.authenticateRequest(req, signVersion);
+    if(signVersion == 4){
+      req = _sign.sign4(req, service: req.service, region: req.region);
+    }else{
+      req = _sign.sign2(req);
+    }
     
     return _server.request(req).then((res){
       //logging
@@ -120,9 +124,9 @@ class Aws{
         }
         
         if(res.statusCode == 403){
-          _logger.debug('Canonical request: \n${_sign.canonical(req, signVersion)}');
+          //_logger.debug('Canonical request: \n${_sign.canonical(req, signVersion)}');
           if(signVersion == 4){
-            _logger.debug('String to sign: \n${_sign.toSign(req, 4)}');
+            //_logger.debug('String to sign: \n${_sign.toSign(req, 4)}');
           }
         }
       }

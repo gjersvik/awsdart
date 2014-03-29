@@ -11,6 +11,7 @@ signTest() => group('Sign',(){
   tearDown((){
     sign = null;
   });
+  
   test('sign2 from exsaple from doc.', (){
     sign = new Sign('AKIAIOSFODNN7EXAMPLE',
             'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY');
