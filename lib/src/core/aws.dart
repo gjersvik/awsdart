@@ -10,10 +10,10 @@ part of awsdart_core;
  * 
  */
 class Aws{
+  static Requester requester;
   static final _logger = LoggerFactory.getLoggerFor(Aws);
   
   Sign _sign;
-  Requester _server;// = new IoRequester().request;
   
   /// Access key ID that tells AWS how you are.
   String accessKey;
@@ -93,7 +93,7 @@ class Aws{
       req = _sign.sign2(req);
     }
     
-    return _server(req).then((res){
+    return requester(req).then((res){
       //logging
       var log = '${req.uri} ${res.statusCode} ${res.statusString}';
       if(res.statusCode < 400){
