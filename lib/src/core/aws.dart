@@ -1,4 +1,4 @@
-part of awsdart;
+part of awsdart_core;
 
 /**
  *  The core class of the Amazone Dart library.
@@ -13,7 +13,7 @@ class Aws{
   static final _logger = LoggerFactory.getLoggerFor(Aws);
   
   Sign _sign;
-  Requester _server = new IoRequester().request;
+  Requester _server;// = new IoRequester().request;
   
   /// Access key ID that tells AWS how you are.
   String accessKey;

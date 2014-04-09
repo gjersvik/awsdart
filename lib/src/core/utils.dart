@@ -1,4 +1,4 @@
-part of awsdart;
+part of awsdart_core;
 
 List<int> hexToBytes(String hex){
   hex = hex.toLowerCase();

@@ -1,4 +1,4 @@
-part of awsdart;
+part of awsdart_io;
 
 class IoRequester{
   HttpClient _client =  new HttpClient();

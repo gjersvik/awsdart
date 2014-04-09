@@ -4,17 +4,14 @@ import 'package:unittest/unittest.dart';
 import 'package:unittest/vm_config.dart';
 
 import 'package:awsdart/awsdart.dart';
+import 'package:awsdart/core.dart';
+import 'core_unit.dart' as core;
 
-part 'src/aws.dart';
+
 part 'src/io_requester.dart';
-part 'src/sign.dart';
-part 'src/utils.dart';
 
 main(){
   useVMConfiguration();
-  
-  awsTest();
+  core.main();
   ioRequesterTest();
-  signTest();
-  utilsTest();
 }

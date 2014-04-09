@@ -1,4 +1,4 @@
-part of awsdart_unit;
+part of awsdart_core_unit;
 
 utilsTest() => group('utils',(){
   test('bytesToHex => hexToBytes round trip',(){

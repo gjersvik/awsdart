@@ -1,4 +1,4 @@
-part of awsdart;
+part of awsdart_core;
 
 class Sign{
   static final algorithm = 'AWS4-HMAC-SHA256';

@@ -1,4 +1,4 @@
-part of awsdart;
+part of awsdart_core;
 
 /// Callback for doing the http request over the network.
 typedef Future<Response> Requester(Request req);
