@@ -1,4 +1,4 @@
-part of awsdart_unit;
+part of awsdart_io_unit;
 
 ioRequesterTest() => group('IoRequester',(){
   test('Try and get google.com',(){

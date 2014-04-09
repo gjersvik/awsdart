@@ -4,5 +4,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:awsdart/core.dart';
+export 'package:awsdart/core.dart';
 
-part 'src/io_requester.dart';
+part 'src/io/io_requester.dart';

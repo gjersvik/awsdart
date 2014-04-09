@@ -1,7 +1,6 @@
 library awsdart_core_unit;
 
 import 'package:unittest/unittest.dart';
-
 import 'package:awsdart/core.dart';
 
 part 'src/core/aws.dart';
