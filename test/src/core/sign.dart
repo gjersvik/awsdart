@@ -3,6 +3,9 @@ part of awsdart_core_unit;
 signTest() => group('Sign',(){
   Sign sign;
   
+  Sign withVersion2Keys() => new Sign('AKIAIOSFODNN7EXAMPLE', 
+        'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY');
+  
   setUp((){
     sign = new Sign('AKIAIOSFODNN7EXAMPLE',
         'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY');
@@ -13,21 +16,25 @@ signTest() => group('Sign',(){
   });
   
   test('sign2 from exsaple from doc.', (){
-    sign = new Sign('AKIAIOSFODNN7EXAMPLE',
-            'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY');
-    var req = new Request();
+    // Setup
+    final sign = withVersion2Keys();
+    final req = new Request();
     req.method = 'GET';
     req.uri = Uri.parse('https://elasticmapreduce.amazonaws.com?Action=DescribeJobFlows&Version=2009-03-31');
     req.headers['Host'] = 'elasticmapreduce.amazonaws.com';
     req.headers['Date'] = '20111003T151930Z';
     
-    req = sign.sign2(req);
+    // Action
+    final future = sign.sign2(req);
     
-    expect(req.uri.queryParameters['AWSAccessKeyId'], 'AKIAIOSFODNN7EXAMPLE');
-    expect(req.uri.queryParameters['SignatureVersion'], '2');
-    expect(req.uri.queryParameters['SignatureMethod'], 'HmacSHA256');
-    expect(req.uri.queryParameters['Timestamp'], '2011-10-03T15:19:30');
-    expect(req.uri.queryParameters['Signature'], 'i91nKc4PWAt0JJIdXwz9HxZCJDdiy6cf/Mj6vPxyYIs=');
+    // Assertions
+    expect(future.then((request){
+      expect(request.uri.queryParameters['AWSAccessKeyId'], 'AKIAIOSFODNN7EXAMPLE');
+      expect(request.uri.queryParameters['SignatureVersion'], '2');
+      expect(request.uri.queryParameters['SignatureMethod'], 'HmacSHA256');
+      expect(request.uri.queryParameters['Timestamp'], '2011-10-03T15:19:30');
+      expect(request.uri.queryParameters['Signature'], 'i91nKc4PWAt0JJIdXwz9HxZCJDdiy6cf/Mj6vPxyYIs=');
+    }), completes);
   });
   
   test('hashHex abc => ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',(){

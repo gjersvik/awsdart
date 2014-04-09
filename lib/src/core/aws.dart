@@ -79,6 +79,7 @@ class Aws{
     }
     
     //Sign the request.
+    var future;
     if(signVersion == 4){
 
       if(region == null){
@@ -88,12 +89,12 @@ class Aws{
         service = hostnameToService(req.uri.host);
       }
       
-      req = _sign.sign4(req, service: service, region: region);
+      future = _sign.sign4(req, service: service, region: region);
     }else{
-      req = _sign.sign2(req);
+      future = _sign.sign2(req);
     }
     
-    return requester(req).then((res){
+    return future.then(requester).then((res){
       //logging
       var log = '${req.uri} ${res.statusCode} ${res.statusString}';
       if(res.statusCode < 400){

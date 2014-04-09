@@ -9,7 +9,7 @@ class Sign{
   
   Sign(this.accessKey,this.secretKey);
   
-  Request sign2(Request req){
+  Future<Request> sign2(Request req){
     final query = new Map.from(req.uri.queryParameters);
     query['AWSAccessKeyId'] = accessKey;
     query['SignatureVersion'] = '2';
@@ -30,10 +30,10 @@ class Sign{
     req.uri = new Uri(scheme: req.uri.scheme, userInfo: req.uri.userInfo, 
               host: req.uri.host, port: req.uri.port,
               path: req.uri.path, queryParameters: query);
-    return req;
+    return new Future.value(req);
   }
   
-  Request sign4(Request req,{String region,
+  Future<Request> sign4(Request req,{String region,
                              String service}){
     final method = req.method;
     final path = canonicalPath(req.uri.pathSegments);
@@ -63,8 +63,8 @@ class Sign{
     auth.write(signature);
     
     req.headers['Authorization'] = auth.toString();
-    return req;
-  }
+    return new Future.value(req);
+}
 
   String hashHex(String data){
     final sha = new SHA256();
