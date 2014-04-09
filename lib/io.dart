@@ -14,12 +14,8 @@ Future<Response> ioRequester(Request req) {
   var _client =  new HttpClient();
   return _client.openUrl(req.method, req.uri)
       .then((HttpClientRequest request){
-        if(req.headers != null){
-          req.headers.forEach(request.headers.add);
-        }
-        if(req.body != null){
-          request.add(req.body);
-        }
+        req.headers.forEach(request.headers.add);
+        request.add(req.body);
         return request.close();
       })
       .then((HttpClientResponse response){
