@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.X
+
+* Added suport for browsers.
+
 ## 0.0.2
 
 * Rewritten the signing code to handle most edge cases.
