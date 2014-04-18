@@ -14,7 +14,7 @@ class Sign{
     query['AWSAccessKeyId'] = accessKey;
     query['SignatureVersion'] = '2';
     query['SignatureMethod'] = 'HmacSHA256';
-    query['Timestamp'] = version2date(req.headers['Date']);
+    query['Timestamp'] = version2date(req.headers['x-amz-date']);
     
     final method = req.method;
     final host = req.headers['Host'];
@@ -43,7 +43,7 @@ class Sign{
     final payloadHash = req.headers['x-amz-content-sha256'];
     final canonical = canonical4(method,path,query,headers,signed,payloadHash);
     
-    final date = req.headers['Date'];
+    final date = req.headers['x-amz-date'];
     final scope = getScope(date, region, service);
     final credential = credentialScope(scope);
     final canonicalHash = hashHex(canonical);

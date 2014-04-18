@@ -19,7 +19,7 @@ signTest() => group('Sign',(){
     req.method = 'GET';
     req.uri = Uri.parse('https://elasticmapreduce.amazonaws.com?Action=DescribeJobFlows&Version=2009-03-31');
     req.headers['Host'] = 'elasticmapreduce.amazonaws.com';
-    req.headers['Date'] = '20111003T151930Z';
+    req.headers['x-amz-date'] = '20111003T151930Z';
     
     req = sign.sign2(req);
     

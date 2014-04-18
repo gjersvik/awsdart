@@ -69,7 +69,7 @@ class Aws{
     if(time == null){
       time = new DateTime.now().toUtc();
     }
-    req.headers.putIfAbsent('Date',
+    req.headers.putIfAbsent('x-amz-date',
         () => new DateFormat("yyyyMMddTHHmmss'Z'").format(time));
     
     //Use x-amz-content-sha256 header if set.
