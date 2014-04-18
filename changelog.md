@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.X
+## 0.0.3
 
 * Added suport for browsers.
 
