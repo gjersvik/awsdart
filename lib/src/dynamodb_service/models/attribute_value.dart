@@ -34,13 +34,13 @@ class AttributeValue{
   
   num get n => _type == 'N' ? _value : null;
   set n(num number){
-    _type = 'S';
+    _type = 'N';
     _value = number;
   }
   
   Set<num> get ns => _type == 'NS' ? _value : null;
   set ns(Iterable<num> numberSet){
-    _type = 'SS';
+    _type = 'NS';
     _value = numberSet.toSet();
   }
   
