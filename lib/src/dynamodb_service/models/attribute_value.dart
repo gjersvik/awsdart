@@ -45,7 +45,22 @@ class AttributeValue{
   }
   
   Map toJson(){
-    
+    switch (_type){
+      case 'B':
+        return {_type: CryptoUtils.bytesToBase64(_value)};
+      case 'BS':
+        return {_type: _value.map(CryptoUtils.bytesToBase64).toList()};
+      case 'S':
+        return {_type: _value};
+      case 'SS':
+        return {_type: _value.toList()};
+      case 'N':
+        return {_type: _value.toString()};
+      case 'NS':
+        return {_type: _value.map((n) => n.toString()).toList()};
+      default:
+        return {};
+    }
   }
   
   String _type;
