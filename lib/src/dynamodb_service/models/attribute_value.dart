@@ -2,8 +2,31 @@ part of awsdart_dynamodb_service;
 
 class AttributeValue{
   
-  AttributeValue([dynamic value]);
-  AttributeValue.fromJson(Map);
+  AttributeValue();
+  AttributeValue.fromJson(Map json){
+    String type = json.keys.first;
+    var value = json.values.first;
+    switch (type){
+      case 'B':
+        b = CryptoUtils.base64StringToBytes(value);
+        break;
+      case 'BS':
+        bs = value.map(CryptoUtils.base64StringToBytes);
+        break;
+      case 'S':
+        s = value;
+        break;
+      case 'SS':
+        ss = value;
+        break;
+      case 'N':
+        n = num.parse(value);
+        break;
+      case 'NS':
+        ns = _value.map(num.parse);
+        break;
+    }
+  }
   
   String get type => _type;
   dynamic get value => _value;
