@@ -40,6 +40,16 @@ class DynamodbService{
     return _request(json, 'PutItem');
   }
   
+  Future deleteItem(String tableName, Map<String,AttributeValue> key){
+    String returnConsumedCapacity = 'NONE';
+    Map json = {
+      'Key': key,
+      'TableName': tableName
+    };
+    
+    return _request(json, 'DeleteItem');
+  }
+  
   Future<Map> _request(Map json, String target){
     var body = UTF8.encode(JSON.encode(json));
     var headers = {
