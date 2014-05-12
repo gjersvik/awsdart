@@ -14,6 +14,7 @@ Future<Response> ioRequester(Request req) {
   var _client =  new HttpClient();
   return _client.openUrl(req.method, req.uri)
       .then((HttpClientRequest request){
+        request.contentLength = req.body.length;
         req.headers.forEach(request.headers.add);
         request.add(req.body);
         return request.close();

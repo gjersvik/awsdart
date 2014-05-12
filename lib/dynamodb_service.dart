@@ -1,6 +1,7 @@
 library awsdart_dynamodb_service;
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:awsdart/core.dart';
