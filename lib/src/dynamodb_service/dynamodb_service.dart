@@ -1,6 +1,8 @@
 part of awsdart_dynamodb_service;
 
 class DynamodbService{
+  static const TARGET = 'DynamoDB_20120810';
+  
   final Aws _aws;
   
   Uri _uri;
@@ -23,17 +25,18 @@ class DynamodbService{
     if(consistentRead){
       json['ConsistentRead'] = true;
     }
-    var body = UTF8.encode(JSON.encode(json));
     
+    return _request(json, 'GetItem')
+      .then((Map json) => new GetItemResult.fromJson(json));
+  }
+  
+  Future<Map> _request(Map json, String target){
+    var body = UTF8.encode(JSON.encode(json));
     var headers = {
-      'x-amz-target': 'DynamoDB_20120810.GetItem',
+      'x-amz-target': '$TARGET.$target',
       'Content-Type': 'application/x-amz-json-1.0'
     };
-    
     return _aws.request(_uri, body: body, method:'POST', headers:headers)
-      .then((Response res){
-        var json = JSON.decode(UTF8.decode(res.body));
-        return new GetItemResult.fromJson(json);
-      });
+        .then((res) => JSON.decode(UTF8.decode(res.body)));
   }
 }

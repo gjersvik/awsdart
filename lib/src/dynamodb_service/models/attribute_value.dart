@@ -88,4 +88,6 @@ class AttributeValue{
   
   String _type;
   var _value;
+  
+  toString() => 'AttributeValue($type:$value)';
 }
