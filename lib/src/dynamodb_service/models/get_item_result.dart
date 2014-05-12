@@ -1,7 +1,6 @@
 part of awsdart_dynamodb_service;
 
 class GetItemResult{
-  ConsumedCapacity consumedCapacity;
   final Map<String,AttributeValue> item = {};
   
   GetItemResult();

@@ -6,9 +6,9 @@ class DynamodbService{
   
   Future<GetItemResult> getItem(String tableName, Map<String,AttributeValue> keys,{
     List<String> attributesToGet: const [],
-    bool consistentRead: false,
-    String returnConsumedCapacity: 'NONE'
+    bool consistentRead: false
   }){
+    String returnConsumedCapacity = 'NONE';
     return new Future(()=> throw new UnimplementedError());
   }
 }
