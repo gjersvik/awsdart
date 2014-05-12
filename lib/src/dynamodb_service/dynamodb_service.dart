@@ -30,6 +30,16 @@ class DynamodbService{
       .then((Map json) => new GetItemResult.fromJson(json));
   }
   
+  Future putItem(String tableName, Map<String,AttributeValue> item){
+    String returnConsumedCapacity = 'NONE';
+    Map json = {
+      'Item': item,
+      'TableName': tableName
+    };
+    
+    return _request(json, 'PutItem');
+  }
+  
   Future<Map> _request(Map json, String target){
     var body = UTF8.encode(JSON.encode(json));
     var headers = {
