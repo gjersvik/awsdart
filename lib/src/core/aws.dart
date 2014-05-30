@@ -12,6 +12,7 @@ part of awsdart_core;
 class Aws{
   static Requester requester;
   static final _logger = LoggerFactory.getLoggerFor(Aws);
+  static Aws _last = new Aws();
   
   Sign _sign;
   
@@ -19,14 +20,22 @@ class Aws{
   String accessKey;
   /// Secret access key proves how you are.
   String secretKey;
+  /// Deafult region;
+  String region = 'us-west-1';
   
   /**
    *  Create a new instance of [Aws].
    *  
    */
-  Aws({this.accessKey, this.secretKey}){
+  Aws({this.accessKey, this.secretKey, this.region}){
     _sign = new Sign(accessKey,secretKey);
+    _last = this;
   }
+  
+  /**
+   * Returns the latest Aws object that was created used as default.
+   */
+  factory Aws.latest() => _last;
   
   /**
    * Request a Amazone Web Service like request.

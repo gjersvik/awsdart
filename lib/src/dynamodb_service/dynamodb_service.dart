@@ -3,10 +3,20 @@ part of awsdart_dynamodb_service;
 class DynamodbService{
   static const TARGET = 'DynamoDB_20120810';
   
-  final Aws _aws;
+  Aws _aws;
   
   Uri _uri;
-  DynamodbService(this._aws, String region){
+  DynamodbService({Aws aws, String region}){
+    if(aws != null){
+      _aws = aws;
+    }else{
+      _aws = new Aws.latest();
+    }
+    
+    if(region == null){
+      region = _aws.region;
+    }
+    
     _uri = Uri.parse("https://dynamodb.$region.amazonaws.com/");
   }
   
