@@ -5,7 +5,7 @@ import 'package:awsdart/io.dart';
 import 'keys.dart';
 
 main(){
-  // settups the AWS apis with the dart:io based backend.
+  // settup the AWS library with the dart:io based backend.
   setupAwsIO();
   
   Aws aws = new Aws(accessKey: ACSSES_KEY, secretKey: SECRET_KEY);
