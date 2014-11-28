@@ -44,32 +44,50 @@ class Credential{
   ///
   /// The Credential object returned will not update if the file change and if
   /// you need to refresh you need to get a new Credential object by calling
-  /// [fromFile] again.
+  /// [fromFile] again. If no credential can be found fails the future with a
+  /// [CredentialNotFoundException] exception.
   static Future<Credential> fromFile({String path, String profile: 'default'}){
     return new Future.microtask(() => throw new UnimplementedError());
   }
   
+  /// Return credentials from the EC2 Instance metadata.
+  /// 
+  /// If you don’t set a roleName the library will use the first role returned
+  /// by aws. The Credential object returned will automatically rotate keys for
+  /// you. So the [accessKey] and [secretKey] of the returned Credential
+  /// instance are not static. If no credential can be found fails the future
+  /// with a [CredentialNotFoundException] exception.
   static Future<Credential> fromInstance([String roleName]){
     return new Future.microtask(() => throw new UnimplementedError());
   }
   
+  /// Returns credentials from the environment variable.
+  /// 
+  /// Will try and get the keys from the AWS_ACCESS_KEY_ID and
+  /// AWS_SECRET_ACCESS_KEY environment variable. The future will fail with a
+  /// [CredentialNotFoundException] if the environment variable is not set.
   static Future<Credential> fromEnvironment([String roleName]){
     return new Future.microtask(() => throw new UnimplementedError());
   }
   
-  /// Will try to find the credentials automatically. By trying the from methods in this order:
+  /// Will try to find the credentials automatically. By trying the from methods
+  /// in this order:
   /// 1. [fromEnvironment]
   /// 2. [fromFile]
   /// 3. [fromInstance]
-  /// If no credential can be found fails the future with a [CredentialNotFound] exception.
+  /// If no credential can be found fails the future with a
+  /// [CredentialNotFoundException] exception.
   static Future<Credential> auto(){
     return new Future.microtask(() => throw new UnimplementedError());
   }
   
-  
+  /// The AWS Access Key.
   final String accessKey;
+  /// The AWS Secret Key.
   final String secretKey;
   
+  /// The simple Credential constructor for where you just sets the values for
+  /// the keys.
   const Credential(this.accessKey,this.secretKey);
 }
 
