@@ -20,15 +20,15 @@ import 'keys.dart';
 const AMI = 'ami-892fe1fe';
 const VPC = 'subnet-9efae2d8';
 
-main(){
+main() {
   // Sets the Aws class to use the IO backend.
   setupAwsIO();
-  
+
   // Creates a new Aws instance with the keys from keys.dart.
   Aws aws = new Aws(accessKey: ACSSES_KEY, secretKey: SECRET_KEY);
-  
+
   // Since most ec2 call follow the same pattern we create a helper metode
-  Future<XmlDocument> ec2Request(Map parameters){
+  Future<XmlDocument> ec2Request(Map parameters) {
     // Aws ec2 takes its argument as a giant get call.
     // So we create this monster url.
     var uri = new Uri.https('ec2.$REGION.amazonaws.com', '/', parameters);
@@ -36,56 +36,56 @@ main(){
      * Aws.request is smart enough to figure out what its need on its own. 
      * At least for this simple case. The other arguments are mostly overrides.
      */
-    return aws.request(uri).then((Response res){
+    return aws.request(uri).then((Response res) {
       // For aws ec2 all the responses is xml even the errors so its safe to
       // parse first.
       var doc = parse(UTF8.decode(res.body));
       //Pretty print the xml to the console to help playing and debugging.
       print(doc.toXmlString(pretty: true));
-      
+
       // If the result is not 200 we throw the doc instead of returning to stop
       // the request chain.
-      if(res.statusCode != 200){
+      if (res.statusCode != 200) {
         print(res.statusCode);
         throw doc;
-      }else{
+      } else {
         return doc;
       }
     });
   }
-  
+
   /* Create a map to represent the first create request.
    * This is the least amount to start one t2.micro instance. 
    * http://docs.aws.amazon.com/AWSEC2/latest/APIReference/ApiReference-ItemType-RunningInstancesItemType.html
    */
   var create = {
-     'Action':'RunInstances',
-     'ImageId': AMI,
-     'InstanceType': 't2.micro',
-     'MinCount': '1',
-     'MaxCount': '1',
-     'SubnetId': VPC,
-     'Version': '2014-06-15'
-   };
-  
+    'Action': 'RunInstances',
+    'ImageId': AMI,
+    'InstanceType': 't2.micro',
+    'MinCount': '1',
+    'MaxCount': '1',
+    'SubnetId': VPC,
+    'Version': '2014-06-15'
+  };
+
   print('!!!Creating instance!!!');
   //Send the request to aws and wait for the reply.
-  ec2Request(create).then((XmlDocument doc){
+  ec2Request(create).then((XmlDocument doc) {
     // Gets the instance id out of the big xml document returned.
     // To terminate we only need its id.
     var instanceId = doc.findAllElements('instanceId').first.text;
     print('!!!$instanceId created!!!');
     print('!!!Terminate $instanceId!!!');
-    
+
     // Creates the map for the termiate resuest.
     // http://docs.aws.amazon.com/AWSEC2/latest/APIReference/ApiReference-query-TerminateInstances.html
     var terminate = {
-      'Action':'TerminateInstances',
+      'Action': 'TerminateInstances',
       'InstanceId.1': instanceId,
       'Version': '2014-06-15'
     };
     return ec2Request(terminate);
-  }).then((XmlDocument doc){
+  }).then((XmlDocument doc) {
     //Just print out. That the code is successful and you are a few cents poorer.
     var instanceId = doc.findAllElements('instanceId').first.text;
     print('!!!$instanceId terminated!!!');
